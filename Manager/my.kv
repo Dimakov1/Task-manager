@@ -1,0 +1,92 @@
+
+
+<Container>:
+    cols: 3
+
+    label_text: main_label
+
+    BoxLayout:
+        orientation: 'vertical'
+        Button:
+            size_hint: 0.3, 0.3
+            text: '1'
+            font_size: 40
+
+        Button:
+            size_hint: 0.3, 0.3
+            text: '2'
+            font_size: 40
+
+        Button:
+            size_hint: 0.3, 0.3
+            text: '3'
+            font_size: 40
+
+
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            id: main_label
+            text: ''
+            font_size: 40
+
+
+        Button:
+            size_hint: 0.8, 0.3
+            text: 'add new task'
+            font_size: 40
+            on_release:
+                root.new_task()
+
+
+
+    BoxLayout:
+        orientation: 'vertical'
+        Button:
+            size_hint: 0.3, 0.3
+            text: '7'
+            font_size: 40
+
+        Button:
+            size_hint: 0.3, 0.3
+            text: '8'
+            font_size: 40
+
+        Button:
+            size_hint: 0.3, 0.3
+            text: '9'
+            font_size: 40
+
+
+<Task_add>:
+    id: task
+    size_hint: .8, .8
+    auto_dismiss: False
+    title: 'Add new Task'
+
+    text_input: text_input
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        GridLayout:
+            cols: 2
+
+            Label:
+                text: 'name'
+                font_size: 40
+
+            TextInput:
+                id: text_input
+                size_hint: 1, 0.4
+                multiline: False
+                font_size: 40
+
+        Button:
+            size_hint: 1, 0.1
+            text: 'create'
+            on_release:
+                root.create_task()
+                task.dismiss()
+
+
