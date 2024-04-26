@@ -1,42 +1,77 @@
 #: import NoTransition kivy.uix.screenmanager.NoTransition
 Screens:
     transition: NoTransition()
-    Register:
     Login:
-
+    Register:
+    
     RailScreen:
+
+
 
 <Login>:
     name: 'login'
-    MDScreen:
-        md_bg_color: self.theme_cls.backgroundColor
-        MDButton:
-            on_press: root.manager.current = 'rail_screen'
-            style: "filled"
-
-            MDButtonText:
-                text: "123"
-
-<Register>:
-    name: 'register'
+    input_login: login
+    input_password: password
     MDScreen:
         md_bg_color: self.theme_cls.backgroundColor
         BoxLayout:
             padding: '100dp'
             orientation: 'vertical'
             md_bg_color: app.theme_cls.primaryColor
-            spacing: "100"
+            spacing: "40"
+            MDLabel:
+                text: "Вход"
+            MDTextField:
+                id: login
+
+            MDTextField:
+                id: password
+
+            MDButton:
+                on_press:
+                    root.input_login.text = ""
+                    root.input_password.text = ""
+                    root.manager.current = 'register'
+                MDButtonText:
+                    text: 'регистрация'
+            MDButton:
+                on_press:  root.login_user()
+                MDButtonText:
+                    text: 'вход'
+
+
+<Register>:
+    name: 'register'
+    login_t: login
+    password_t: password
+    password_t2: password2
+    MDScreen:
+        md_bg_color: self.theme_cls.backgroundColor
+        BoxLayout:
+            padding: '100dp'
+            orientation: 'vertical'
+            md_bg_color: app.theme_cls.primaryColor
+            spacing: "40"
             MDLabel:
                 text: "Регистрация"
             MDTextField:
-                id: 'login'
+                id: login
             MDTextField:
-                id: 'password'
+                id: password
+            MDTextField:
+                id: password2
             MDButton:
+                on_press: root.register()
                 MDButtonText:
-                    text: 'войти'
-
-
+                    text: 'зарегистрироваться'
+            MDButton:
+                on_press:
+                    root.login_t.text = ""
+                    root.password_t.text = ""
+                    root.password_t2.text = ""
+                    root.manager.current = 'login'
+                MDButtonText:
+                    text: 'назад'
 
 <Field_text>:
     mode: "filled"
