@@ -1,22 +1,57 @@
 #: import NoTransition kivy.uix.screenmanager.NoTransition
-
 Screens:
-    MenuScreen:
-    ProfileScreen:
+    transition: NoTransition()
+    Register:
+    Login:
+
+    RailScreen:
+
+<Login>:
+    name: 'login'
+    MDScreen:
+        md_bg_color: self.theme_cls.backgroundColor
+        MDButton:
+            on_press: root.manager.current = 'rail_screen'
+            style: "filled"
+
+            MDButtonText:
+                text: "123"
+
+<Register>:
+    name: 'register'
+    MDScreen:
+        md_bg_color: self.theme_cls.backgroundColor
+        BoxLayout:
+            padding: '100dp'
+            orientation: 'vertical'
+            md_bg_color: app.theme_cls.primaryColor
+            spacing: "100"
+            MDLabel:
+                text: "Регистрация"
+            MDTextField:
+                id: 'login'
+            MDTextField:
+                id: 'password'
+            MDButton:
+                MDButtonText:
+                    text: 'войти'
 
 
-<CommonNavigationRailItem>
 
-    MDNavigationRailItemIcon:
+<Field_text>:
+    mode: "filled"
+    MDTextFieldLeadingIcon:
         icon: root.icon
 
-    MDNavigationRailItemLabel:
+    MDTextFieldHintText:
         text: root.text
 
 
-<MenuScreen>:
-    name: 'menu_screen'
-    MDBoxLayout:
+
+<RailScreen>:
+    name: 'rail_screen'
+    BoxLayout:
+        orientation: 'horizontal'
 
         MDNavigationRail:
             type: "labeled"
@@ -47,22 +82,39 @@ Screens:
                 icon: "account"
                 text: "Аккаунт"
 
-        MDScreen:
-            md_bg_color: self.theme_cls.backgroundColor
-            MDButton:
-                pos_hint: {"center_x": .5, "center_y": .5}
-                style: "filled"
-                theme_bg_color: "Custom"
-                md_bg_color: "green"
-                on_press: root.manager.current = 'profile'
+        Screens:
+            transition: NoTransition()
+            MenuScreen:
+            ProfileScreen:
 
-                MDButtonIcon:
-                    icon: "account"
 
-                MDButtonText:
-                    text: "123"
-                    theme_text_color: "Custom"
-                    text_color: "red"
+<CommonNavigationRailItem>
+
+    MDNavigationRailItemIcon:
+        icon: root.icon
+
+    MDNavigationRailItemLabel:
+        text: root.text
+
+
+<MenuScreen>:
+    name: 'menu_screen'
+    MDScreen:
+        md_bg_color: self.theme_cls.backgroundColor
+        MDButton:
+            pos_hint: {"center_x": .5, "center_y": .5}
+            style: "filled"
+            theme_bg_color: "Custom"
+            md_bg_color: "green"
+            on_press: root.manager.current = 'profile'
+
+            MDButtonIcon:
+                icon: "alarm"
+
+            MDButtonText:
+                text: "123"
+                theme_text_color: "Custom"
+                text_color: "red"
 
 
 <ProfileScreen>:
@@ -80,7 +132,6 @@ Screens:
                 icon: "account"
 
             MDButtonText:
-                text: "123"
+                text: "Account"
                 theme_text_color: "Custom"
-                text_color: "red"
-
+                text_color: "white"

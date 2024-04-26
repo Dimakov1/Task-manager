@@ -2,34 +2,44 @@ from kivy.lang import Builder
 from kivy.properties import StringProperty
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import Screen
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import NoTransition, ScreenManager
 from kivymd.app import MDApp
-from kivymd.uix.navigationrail import MDNavigationRailItem
+from kivymd.uix.navigationrail import MDNavigationRail, MDNavigationRailItem
+from kivymd.uix.textfield import MDTextField
 
 
-
-
-
-class MenuScreen(Screen):
-    def open_drop_item_menu(self, item): #открывает меню
+class RailScreen(Screen):  # не меняет тему, при нажатии на кнопку появляется ошибка
+    def open_drop_item_menu(self, item):  # открывает меню
         menu_items = [
             {
                 "text": "Сменить тему",
-                "on_release": lambda x= 1 : DemoApp.change_theme(item)
+                "on_release": lambda x=1: DemoApp.change_theme(item)
             }
         ]
         self.drop_item_menu = MDDropdownMenu(
             caller=item, items=menu_items, position="center"
         )
         self.drop_item_menu.open()
-    #если хочешь обратиться к функции на данном экране, то нужно написать root.(назвние ф-ции)(self)
-    #некоторые ф-ции можно вызвать ток в MDApp, например change_theme
-
+    # если хочешь обратиться к функции на данном экране, то нужно написать root.(назвние ф-ции)(self)
+    # некоторые ф-ции можно вызвать ток в MDApp, например change_theme
 
 
 class Screens(ScreenManager):
-
     pass
+
+class Register(Screen): #включить функции по регистрации (бэк)
+    pass
+
+class Login(Screen): #включить функции по логину (бэк)
+    pass
+
+class MenuScreen(Screen):
+    pass
+
+class Field_text(MDTextField):
+    icon = StringProperty()
+    text = StringProperty()
 
 
 class CommonNavigationRailItem(MDNavigationRailItem):
@@ -41,15 +51,14 @@ class ProfileScreen(Screen):
     pass
 
 
-sm = ScreenManager(transition=NoTransition()) #исправь, не работает но транзишн
+sm = ScreenManager(transition=NoTransition())
 sm.add_widget(ProfileScreen(name='profile'))
 sm.add_widget(MenuScreen(name='menu_screen'))
 
 
 
-
 class DemoApp(MDApp):
-    def change_theme(self): #меняет тему
+    def change_theme(self):  # меняет тему
         if self.theme_cls.theme_style == "Dark":
             self.theme_cls.primary_palette = "Rosybrown"
             self.theme_cls.theme_style = "Light"
