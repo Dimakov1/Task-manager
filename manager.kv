@@ -1,0 +1,28 @@
+<MainMenu>:
+    input_text: input_text
+    label_text: label
+
+    BoxLayout:
+
+
+        orientation: 'vertical'
+        Label:
+            id: label
+            halign: 'center'
+            text_size: 1280, None
+            text: ""
+            font_size: 20
+
+        TextInput:
+            id: input_text
+            multiline: False
+            font_size: 20
+       
+        Button:
+        
+            text: 'Назад'
+            size_hint: 1, 0.2
+            font_size: 20
+            on_press:
+                root.label_text.text = ""
+                root.Chat()
