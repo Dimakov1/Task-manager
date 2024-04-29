@@ -1,14 +1,151 @@
 #: import NoTransition kivy.uix.screenmanager.NoTransition
+Screens:
+    transition: NoTransition()
+    Login:
+    Register:
 
-BoxLayout:
-    orientation: 'horizontal'
+    RailScreen:
 
-    MDNavigationRail:
 
-    Screens:
-        transition: NoTransition()
-        MenuScreen:
-        ProfileScreen:
+
+<Login>:
+    name: 'login'
+    input_login: login
+    input_password: password
+    MDScreen:
+        md_bg_color: '#0D1117'
+        BoxLayout:
+            size_hint: (.5, .5)
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            padding: '10dp'
+            orientation: 'vertical'
+            md_bg_color: app.theme_cls.primaryColor
+            spacing: "40"
+            MDLabel:
+                font_style: "Headline"
+                text: 'Вход'
+                text_color: 'white'
+                halign: 'center'
+            FieldText:
+                id: login
+                icon: 'account'
+                hint_text: 'Логин'
+
+            FieldText:
+                id: password
+                hint_text: 'Пароль'
+                icon: 'key'
+
+
+            BoxLayout:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                orientation : 'horizontal'
+                spacing: "180"
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: "green"
+                    on_press: root.login_user()
+                    MDButtonText:
+                        text: '[b]ВОЙТИ[/b]'
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: "red"
+                    on_press:
+                        root.input_login.text = ""
+                        root.input_password.text = ""
+                        root.manager.current = 'register'
+                    MDButtonText:
+                        text: '[b]РЕГИСТРАЦИЯ[/b]'
+
+
+
+<FieldText>:
+    MDTextFieldLeadingIcon:
+        icon: root.icon
+
+    MDTextFieldHintText:
+        text: root.hint_text
+        text_color_normal: 'white'
+        text_color_focus: 'white'
+
+
+
+
+<Register>:
+    name: 'register'
+    login_t: login
+    password_t: password
+    password_t2: password2
+    MDScreen:
+        md_bg_color: self.theme_cls.backgroundColor
+        BoxLayout:
+            padding: '100dp'
+            orientation: 'vertical'
+            md_bg_color: app.theme_cls.primaryColor
+            spacing: "40"
+            MDLabel:
+                text: "Регистрация"
+            MDTextField:
+                id: login
+            MDTextField:
+                id: password
+            MDTextField:
+                id: password2
+            MDButton:
+                on_press: root.register()
+                MDButtonText:
+                    text: 'зарегистрироваться'
+            MDButton:
+                on_press:
+                    root.login_t.text = ""
+                    root.password_t.text = ""
+                    root.password_t2.text = ""
+                    root.manager.current = 'login'
+                MDButtonText:
+                    text: 'назад'
+
+
+
+<RailScreen>:
+    name: 'rail_screen'
+    BoxLayout:
+        orientation: 'horizontal'
+
+        MDNavigationRail:
+            type: "labeled"
+
+
+            MDNavigationRailMenuButton:
+                id: menu_
+                icon: "menu"
+                on_release: root.open_drop_item_menu(self)
+
+            MDNavigationRailFabButton:
+                icon: "home"
+
+
+            CommonNavigationRailItem:
+                icon: "alert-circle"
+                text: "Важные"
+
+            CommonNavigationRailItem:
+                icon: "bookmark"
+                text: "Активные"
+
+            CommonNavigationRailItem:
+                icon: "archive"
+                text: "Все задачи"
+
+            CommonNavigationRailItem:
+                icon: "account"
+                text: "Аккаунт"
+
+        Screens:
+            transition: NoTransition()
+            MenuScreen:
+            ProfileScreen:
 
 
 <CommonNavigationRailItem>
@@ -58,32 +195,3 @@ BoxLayout:
                 text: "Account"
                 theme_text_color: "Custom"
                 text_color: "white"
-
-<MDNavigationRail>:
-    type: "labeled"
-
-
-    MDNavigationRailMenuButton:
-        id: menu_
-        icon: "menu"
-        on_release: root.open_drop_item_menu(self)
-
-    MDNavigationRailFabButton:
-        icon: "home"
-
-
-    CommonNavigationRailItem:
-        icon: "alert-circle"
-        text: "Важные"
-
-    CommonNavigationRailItem:
-        icon: "bookmark"
-        text: "Активные"
-
-    CommonNavigationRailItem:
-        icon: "archive"
-        text: "Все задачи"
-
-    CommonNavigationRailItem:
-        icon: "account"
-        text: "Аккаунт"
