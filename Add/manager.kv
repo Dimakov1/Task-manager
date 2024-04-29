@@ -1,0 +1,46 @@
+<MainMenu>:
+    box: bx
+    BoxLayout:
+        id: bx
+        orientation: 'vertical'
+
+        Button:
+            text: '+'
+            font_size: 20
+            on_press: root.manager.current = 'new_task'
+        
+        Button:
+            text: 'Все таски'
+            font_size: 20
+            on_press: root.show_tasks()
+
+
+
+<New_task>:
+    name_t: name
+    main_t: main
+    priority_t: priority
+    data_t: data
+    BoxLayout:
+        orientation: 'vertical'
+
+        TextInput:
+            id: name
+            text: ""
+
+        TextInput:
+            id: main
+            text: ""
+
+        TextInput:
+            id: priority
+            text: ""
+
+        TextInput:
+            id: data
+            text: ""
+
+        Button:
+            text: 'Готово'
+            font_size: 20
+            on_press: root.make()
