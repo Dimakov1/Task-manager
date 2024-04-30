@@ -1,50 +1,150 @@
 #: import NoTransition kivy.uix.screenmanager.NoTransition
 Screens:
     transition: NoTransition()
-    Register:
     Login:
+    Register:
 
     RailScreen:
 
+
+
 <Login>:
     name: 'login'
+    input_login: login
+    input_password: password
     MDScreen:
-        md_bg_color: self.theme_cls.backgroundColor
-        MDButton:
-            on_press: root.manager.current = 'rail_screen'
-            style: "filled"
+        md_bg_color: '#0D1117'
+        MDFloatLayout:
+            MDIconButton: #кнопка для показа пароля (нужно доделать)
+                style: "standard"
+                icon: 'eye'
+                theme_icon_color: "Custom"
+                icon_color: "white"
+                on_press: app.show_password(1)
+                pos_hint: {'center_x': .7, "center_y": .428}
 
-            MDButtonText:
-                text: "123"
+        BoxLayout:
+            size_hint: (.5, .5)
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            padding: '10dp'
+            orientation: 'vertical'
+            md_bg_color: app.theme_cls.primaryColor
+            spacing: "40"
+            MDLabel:
+                font_style: "Headline"
+                text: 'Вход'
+                text_color: 'white'
+                halign: 'center'
+
+            FieldText:
+                text_color: 'white'
+                id: login
+                icon: 'account'
+                hint_text: 'Логин'
+
+            FieldText:
+                text_color: 'white'
+                id: password
+                hint_text: 'Пароль'
+                password: app.show_password()
+                icon: 'key'
+
+
+
+            BoxLayout:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                orientation : 'horizontal'
+                spacing: "180"
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: "green"
+                    on_press: root.login_user()
+                    MDButtonText:
+                        text: '[b]ВОЙТИ[/b]'
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: "red"
+                    on_press:
+                        root.input_login.text = ""
+                        root.input_password.text = ""
+                        root.manager.current = 'register'
+                    MDButtonText:
+                        text: '[b]РЕГИСТРАЦИЯ[/b]'
+
+
+
+<FieldText>:
+    theme_text_color: "Custom"
+    text_color_normal: root.text_color
+    text_color_focus: root.text_color
+    radius: [dp(19)]
+
+    MDTextFieldTrailingIcon:
+        more_icon : root.more_icon
+
+    MDTextFieldLeadingIcon:
+        icon: root.icon
+        theme_icon_color: "Custom"
+        icon_color_normal: root.text_color
+        icon_color_focus: root.text_color
+
+    MDTextFieldHintText:
+        text: root.hint_text
+        text_color_normal: root.text_color
+        text_color_focus: root.text_color
+
+
+
 
 <Register>:
     name: 'register'
+    login_t: login
+    password_t: password
+    password_t2: password2
     MDScreen:
-        md_bg_color: self.theme_cls.backgroundColor
+        md_bg_color: '#0D1117'
         BoxLayout:
-            padding: '100dp'
+            size_hint: (.5, .5)
+            pos_hint: {'center_x': .5, 'center_y': .3}
+            padding: '10dp'
             orientation: 'vertical'
             md_bg_color: app.theme_cls.primaryColor
-            spacing: "100"
+            spacing: "40"
             MDLabel:
                 text: "Регистрация"
-            MDTextField:
-                id: 'login'
-            MDTextField:
-                id: 'password'
+                font_style: "Headline"
+                text_color: 'white'
+                halign: 'center'
+
+            FieldText:
+                id: login
+                text_color: 'white'
+                icon: 'account'
+                hint_text: 'Логин'
+            FieldText:
+                id: password
+                text_color: 'white'
+                icon: 'key'
+                hint_text: 'Пароль'
+            FieldText:
+                id: password2
+                text_color: 'white'
+                icon: 'key'
+                hint_text: 'Пароль'
             MDButton:
+                on_press: root.register()
                 MDButtonText:
-                    text: 'войти'
-
-
-
-<Field_text>:
-    mode: "filled"
-    MDTextFieldLeadingIcon:
-        icon: root.icon
-
-    MDTextFieldHintText:
-        text: root.text
+                    text: 'Зарегистрироваться'
+            MDButton:
+                on_press:
+                    root.login_t.text = ""
+                    root.password_t.text = ""
+                    root.password_t2.text = ""
+                    root.manager.current = 'login'
+                MDButtonText:
+                    text: 'назад'
 
 
 

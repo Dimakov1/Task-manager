@@ -6,7 +6,10 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import NoTransition, ScreenManager
 from kivymd.app import MDApp
 from kivymd.uix.navigationrail import MDNavigationRail, MDNavigationRailItem
-from kivymd.uix.textfield import MDTextField
+from kivymd.uix.textfield import MDTextField, MDTextFieldHintText
+import sqlite3
+from kivy.properties import ObjectProperty
+import os
 
 
 class RailScreen(Screen):  # не меняет тему, при нажатии на кнопку появляется ошибка
@@ -28,18 +31,72 @@ class RailScreen(Screen):  # не меняет тему, при нажатии �
 class Screens(ScreenManager):
     pass
 
-class Register(Screen): #включить функции по регистрации (бэк)
-    pass
 
-class Login(Screen): #включить функции по логину (бэк)
-    pass
+class Login(Screen):  # включить функции по регистрации (бэк)
+
+    def create_Bd():  # создаём БД
+        global database
+        global cursor
+        current_directory = os.path.dirname(__file__)
+        file_path = os.path.join(current_directory, 'Logins.db')
+        database = sqlite3.connect(file_path)
+        cursor = database.cursor()
+
+        cursor.execute("""CREATE TABLE IF NOT EXISTS users(
+            login TEXT,
+            password TEXT
+        )""")
+        database.commit()
+
+    input_login = ObjectProperty()  # TextInput для логина
+    input_password = ObjectProperty()  # TextInput для пароля
+
+    def login_user(self):  # Проверка данных и вход
+        if cursor.execute(f"SELECT login FROM users WHERE login = '{self.input_login.text}'").fetchone() is None:
+            print("Такого пользователя не существует")
+        elif cursor.execute(f"SELECT login, password FROM users WHERE login = '{self.input_login.text}'").fetchone()[
+            1] != self.input_password.text:
+            print("Неверный пароль")
+        else:
+            print("вход осуществлен")
+            self.manager.current = 'rail_screen'
+
+
+# Экран регистрации
+class Register(Screen):
+    login_t = ObjectProperty()  # TextInput для логина
+    password_t = ObjectProperty()  # TextInput для пароля
+    password_t2 = ObjectProperty()  # TextInput для второго пароля
+
+    def register(self):  # проверка данных и запись в БД
+        print(self.login_t.text, self.password_t.text, self.password_t2.text)
+        if len(self.login_t.text) <= 4:
+            print("Логин должен содержать более 4 символов")
+        elif len(self.password_t.text) <= 4:
+            print("Пароль должен содержать более 4 символов")
+        elif self.password_t.text != self.password_t2.text:
+            print("Пароли не совпадают")
+        elif cursor.execute(f"SELECT login FROM users WHERE login = '{self.login_t.text}'").fetchone() is not None:
+            print("Такой пользователь уже существует")
+        else:
+            cursor.execute(f"INSERT INTO users VALUES (?, ?)", (self.login_t.text, self.password_t.text))
+            database.commit()
+            print("всё гуд")
+            # TextInput'ы очищаем и переходим на экран логина
+            self.login_t.text, self.password_t.text, self.password_t2.text = '', '', ''
+            self.manager.current = 'login'
+
 
 class MenuScreen(Screen):
     pass
 
-class Field_text(MDTextField):
+
+class FieldText(MDTextField):
+    text_color = ObjectProperty()
     icon = StringProperty()
-    text = StringProperty()
+    hint_text = StringProperty()
+    more_icon = StringProperty()
+
 
 
 class CommonNavigationRailItem(MDNavigationRailItem):
@@ -51,13 +108,8 @@ class ProfileScreen(Screen):
     pass
 
 
-sm = ScreenManager(transition=NoTransition())
-sm.add_widget(ProfileScreen(name='profile'))
-sm.add_widget(MenuScreen(name='menu_screen'))
-
-
-
 class DemoApp(MDApp):
+    pas = False
     def change_theme(self):  # меняет тему
         if self.theme_cls.theme_style == "Dark":
             self.theme_cls.primary_palette = "Rosybrown"
@@ -67,7 +119,13 @@ class DemoApp(MDApp):
             self.theme_cls.primary_palette = "Orange"
 
     def build(self):
+        Login.create_Bd()
         return Builder.load_file('new_screen.kv')
 
+    def show_password(self, sec = 0): # показывает/скрывает пароль не полуилось реализовал
+        if sec == 1:
+            return False
+        else:
+            return True
 
 DemoApp().run()
