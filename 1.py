@@ -9,8 +9,9 @@ from kivymd.uix.navigationrail import MDNavigationRail, MDNavigationRailItem
 from kivymd.uix.textfield import MDTextField, MDTextFieldHintText
 import sqlite3
 from kivy.properties import ObjectProperty
+from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
+from kivy.core.window import Window
 import os
-
 
 class RailScreen(Screen):  # не меняет тему, при нажатии на кнопку появляется ошибка
     def open_drop_item_menu(self, item):  # открывает меню
@@ -58,7 +59,17 @@ class Login(Screen):  # включить функции по регистрац�
             1] != self.input_password.text:
             print("Неверный пароль")
         else:
-            print("вход осуществлен")
+            MDSnackbar(
+                MDSnackbarText(
+                    text="Вход успешно выполнен",
+                    theme_text_color="Custom",
+                    text_color='white',
+                ),
+                background_color='#0e134f',
+                pos_hint={"center_x": 0.5},
+                size_hint_x=0.5,
+                radius= [(20)]*4
+            ).open()
             self.manager.current = 'rail_screen'
 
 
@@ -109,23 +120,14 @@ class ProfileScreen(Screen):
 
 
 class DemoApp(MDApp):
-    pas = False
-    def change_theme(self):  # меняет тему
-        if self.theme_cls.theme_style == "Dark":
-            self.theme_cls.primary_palette = "Rosybrown"
-            self.theme_cls.theme_style = "Light"
-        else:
-            self.theme_cls.theme_style = "Dark"
-            self.theme_cls.primary_palette = "Orange"
+    def change_theme(self):  # ПОЧИНИТЬ
+        pass
 
     def build(self):
         Login.create_Bd()
+        self.theme_cls.backgroundColor = '#0D1117'
         return Builder.load_file('new_screen.kv')
 
-    def show_password(self, sec = 0): # показывает/скрывает пароль не полуилось реализовал
-        if sec == 1:
-            return False
-        else:
-            return True
-
+    def show_password(self): # показывает/скрывает пароль не полуилось реализовал
+        print(self.password.text)
 DemoApp().run()

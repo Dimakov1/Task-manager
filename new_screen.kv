@@ -3,9 +3,7 @@ Screens:
     transition: NoTransition()
     Login:
     Register:
-
     RailScreen:
-
 
 
 <Login>:
@@ -13,14 +11,14 @@ Screens:
     input_login: login
     input_password: password
     MDScreen:
-        md_bg_color: '#0D1117'
+        md_bg_color: app.theme_cls.backgroundColor
         MDFloatLayout:
             MDIconButton: #кнопка для показа пароля (нужно доделать)
                 style: "standard"
                 icon: 'eye'
                 theme_icon_color: "Custom"
                 icon_color: "white"
-                on_press: app.show_password(1)
+                on_press: app.show_password()
                 pos_hint: {'center_x': .7, "center_y": .428}
 
         BoxLayout:
@@ -46,7 +44,7 @@ Screens:
                 text_color: 'white'
                 id: password
                 hint_text: 'Пароль'
-                password: app.show_password()
+                password: True
                 icon: 'key'
 
 
@@ -104,7 +102,7 @@ Screens:
     password_t: password
     password_t2: password2
     MDScreen:
-        md_bg_color: '#0D1117'
+        md_bg_color: app.theme_cls.backgroundColor
         BoxLayout:
             size_hint: (.5, .5)
             pos_hint: {'center_x': .5, 'center_y': .3}
@@ -154,7 +152,10 @@ Screens:
         orientation: 'horizontal'
 
         MDNavigationRail:
-            type: "labeled"
+            md_bg_color: app.theme_cls.backgroundColor
+            elevation: 1
+            anchor: 'bottom'
+            type: "unselected"
 
 
             MDNavigationRailMenuButton:
@@ -200,7 +201,7 @@ Screens:
 <MenuScreen>:
     name: 'menu_screen'
     MDScreen:
-        md_bg_color: self.theme_cls.backgroundColor
+        md_bg_color: app.theme_cls.backgroundColor
         MDButton:
             pos_hint: {"center_x": .5, "center_y": .5}
             style: "filled"
@@ -220,7 +221,7 @@ Screens:
 <ProfileScreen>:
     name: 'profile'
     MDScreen:
-        md_bg_color: self.theme_cls.backgroundColor
+        md_bg_color: app.theme_cls.backgroundColor
         MDButton:
             pos_hint: {"center_x": .5, "center_y": .5}
             style: "filled"
