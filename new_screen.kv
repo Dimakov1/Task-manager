@@ -187,6 +187,7 @@ Screens:
             transition: NoTransition()
             MenuScreen:
             ProfileScreen:
+            TaskScreen:
 
 
 <CommonNavigationRailItem>
@@ -207,7 +208,9 @@ Screens:
             style: "filled"
             theme_bg_color: "Custom"
             md_bg_color: "green"
-            on_press: root.manager.current = 'profile'
+            on_press:
+                root.manager.current = 'tasks'
+                root.show()
 
             MDButtonIcon:
                 icon: "alarm"
@@ -227,7 +230,8 @@ Screens:
             style: "filled"
             theme_bg_color: "Custom"
             md_bg_color: "green"
-            on_press: root.manager.current = 'menu_screen'
+            on_press:
+                root.manager.current = 'menu_screen'
 
             MDButtonIcon:
                 icon: "account"
@@ -236,3 +240,66 @@ Screens:
                 text: "Account"
                 theme_text_color: "Custom"
                 text_color: "white"
+
+<TaskScreen>:
+    name: 'tasks'
+    MDScreen:
+        md_bg_color: app.theme_cls.backgroundColor
+        ScrollView:
+            size_hint_x: .5
+            md_bg_color: app.theme_cls.backgroundColor
+            pos_hint: {"center_x": .5, "center_y": .5}
+
+            MDList:
+                id: tasks_
+
+<ExpansionPanelItem>:
+
+    MDExpansionPanelHeader:
+
+        MDListItem:
+            theme_bg_color: "Custom"
+            md_bg_color: '#819090'
+            ripple_effect: False
+
+            MDListItemSupportingText:
+                text: root.header_text
+
+            TrailingPressedIconButton:
+                id: chevron
+                icon: "chevron-right"
+                on_release: root.tap_expansion_chevron(root, chevron)
+
+
+
+    MDExpansionPanelContent:
+        orientation: "vertical"
+        ripple_effect: False
+        padding: "12dp", 0, "12dp", "12dp"
+        md_bg_color: '#819090'
+
+        MDLabel:
+            adaptive_height: True
+            padding_x: "16dp"
+            padding_y: "12dp"
+
+        MDListItem:
+            theme_bg_color: "Custom"
+            md_bg_color: '#819090'
+            ripple_effect: False
+
+
+            MDCheckbox:
+                checkbox_icon_down: 'delete'
+                on_press:
+                    app.change_theme()
+
+            MDListItemLeadingIcon:
+                icon: "calendar"
+
+
+            MDListItemHeadlineText: #описание
+                text: root.description
+
+            MDListItemSupportingText: #должен стоять дд
+                text: "kivydevelopment@gmail.com"

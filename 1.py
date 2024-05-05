@@ -2,16 +2,22 @@ from kivy.lang import Builder
 from kivy.properties import StringProperty
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import Screen
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.screenmanager import NoTransition, ScreenManager
+from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
-from kivymd.uix.navigationrail import MDNavigationRail, MDNavigationRailItem
-from kivymd.uix.textfield import MDTextField, MDTextFieldHintText
+from kivymd.uix.navigationrail import MDNavigationRailItem
+from kivymd.uix.textfield import MDTextField
 import sqlite3
+from kivymd.uix.button import MDButton
+from kivymd.uix.expansionpanel import MDExpansionPanel
 from kivy.properties import ObjectProperty
 from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
-from kivy.core.window import Window
+from kivymd.uix.behaviors import RotateBehavior
+from kivy.uix.behaviors import ButtonBehavior
+from kivy.metrics import dp
+from kivy.animation import Animation
+from kivymd.uix.list import MDListItemTrailingIcon
 import os
+
 
 class RailScreen(Screen):  # не меняет тему, при нажатии на кнопку появляется ошибка
     def open_drop_item_menu(self, item):  # открывает меню
@@ -68,7 +74,7 @@ class Login(Screen):  # включить функции по регистрац�
                 background_color='#0e134f',
                 pos_hint={"center_x": 0.5},
                 size_hint_x=0.5,
-                radius= [(20)]*4
+                radius=[(20)] * 4
             ).open()
             self.manager.current = 'rail_screen'
 
@@ -98,8 +104,21 @@ class Register(Screen):
             self.manager.current = 'login'
 
 
-class MenuScreen(Screen):
+class TrailingPressedIconButton(
+    ButtonBehavior, RotateBehavior, MDListItemTrailingIcon
+):
     pass
+
+
+class MenuScreen(Screen):
+    def show(self): #тут закидываем таски на экран TaskScreen
+        task_screen = self.manager.get_screen('tasks')
+        for i in range(10):
+            task_screen.ids.tasks_.add_widget(ExpansionPanelItem(
+
+                header_text=f"Задача {i}",
+                description=f"Описание задачи {i}"
+            ))
 
 
 class FieldText(MDTextField):
@@ -107,7 +126,6 @@ class FieldText(MDTextField):
     icon = StringProperty()
     hint_text = StringProperty()
     more_icon = StringProperty()
-
 
 
 class CommonNavigationRailItem(MDNavigationRailItem):
@@ -119,15 +137,40 @@ class ProfileScreen(Screen):
     pass
 
 
+class TaskScreen(Screen):
+    pass
+
+
+
+class ExpansionPanelItem(MDExpansionPanel):
+    header_text = StringProperty()
+    support_text = StringProperty()
+    description = StringProperty()
+
+    def tap_expansion_chevron(
+            self, panel: MDExpansionPanel, chevron: TrailingPressedIconButton
+    ):
+        Animation(
+            padding=[0, dp(12), 0, dp(12)]
+            if not panel.is_open
+            else [0, 0, 0, 0],
+            d=0.2,
+        ).start(panel)
+        panel.open() if not panel.is_open else panel.close()
+        panel.set_chevron_down(
+            chevron
+        ) if not panel.is_open else panel.set_chevron_up(chevron)
+
+
 class DemoApp(MDApp):
+
     def change_theme(self):  # ПОЧИНИТЬ
-        pass
+        print(1)
 
     def build(self):
         Login.create_Bd()
         self.theme_cls.backgroundColor = '#0D1117'
         return Builder.load_file('new_screen.kv')
 
-    def show_password(self): # показывает/скрывает пароль не полуилось реализовал
-        print(self.password.text)
+
 DemoApp().run()
