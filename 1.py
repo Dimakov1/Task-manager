@@ -7,7 +7,7 @@ from kivymd.app import MDApp
 from kivymd.uix.navigationrail import MDNavigationRailItem
 from kivymd.uix.textfield import MDTextField
 import sqlite3
-from kivymd.uix.button import MDButton
+from kivy.core.window import Window
 from kivymd.uix.expansionpanel import MDExpansionPanel
 from kivy.properties import ObjectProperty
 from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
@@ -17,6 +17,11 @@ from kivy.metrics import dp
 from kivy.animation import Animation
 from kivymd.uix.list import MDListItemTrailingIcon
 import os
+from kivymd.uix.button import MDIconButton, MDButton
+from kivy.uix.modalview import ModalView
+from kivymd.uix.label import MDLabel
+
+Window.size = (800, 670)
 
 
 class RailScreen(Screen):  # не меняет тему, при нажатии на кнопку появляется ошибка
@@ -33,10 +38,17 @@ class RailScreen(Screen):  # не меняет тему, при нажатии �
         self.drop_item_menu.open()
     # если хочешь обратиться к функции на данном экране, то нужно написать root.(назвние ф-ции)(self)
     # некоторые ф-ции можно вызвать ток в MDApp, например change_theme
+    def togpt(self):
+        gpt = ScreensSecond.get_screen('gpt_screen')
+        ScreensSecond.choice(gpt)
 
 
 class Screens(ScreenManager):
     pass
+
+class ScreensSecond(ScreenManager):
+    def choice(self, screen):
+        self.manager.current = screen
 
 
 class Login(Screen):  # включить функции по регистрации (бэк)
@@ -77,6 +89,7 @@ class Login(Screen):  # включить функции по регистрац�
                 radius=[(20)] * 4
             ).open()
             self.manager.current = 'rail_screen'
+
 
 
 # Экран регистрации
@@ -127,15 +140,16 @@ class FieldText(MDTextField):
     hint_text = StringProperty()
     more_icon = StringProperty()
 
+class GPT(Screen):
+    user_input = ObjectProperty()
+
 
 class CommonNavigationRailItem(MDNavigationRailItem):
     text = StringProperty()
     icon = StringProperty()
 
-
 class ProfileScreen(Screen):
     pass
-
 
 class TaskScreen(Screen):
     pass
@@ -161,16 +175,30 @@ class ExpansionPanelItem(MDExpansionPanel):
             chevron
         ) if not panel.is_open else panel.set_chevron_up(chevron)
 
+class Command(MDLabel):
+    text = StringProperty()
+    size_hint_x = ObjectProperty()
+    halign = StringProperty()
+    font_name = "Poppins"
+    font_size = 17
 
+class Response(MDLabel):
+    text = StringProperty()
+    size_hint_x = ObjectProperty()
+    halign = StringProperty()
+    font_name = "Poppins"
+    font_size = 17
 class DemoApp(MDApp):
-
-    def change_theme(self):  # ПОЧИНИТЬ
-        print(1)
 
     def build(self):
         Login.create_Bd()
         self.theme_cls.backgroundColor = '#0D1117'
         return Builder.load_file('new_screen.kv')
 
+    def change_theme(self):  # ПОЧИНИТЬ
+        pass
 
-DemoApp().run()
+
+
+if __name__ == "__main__":
+    DemoApp().run()

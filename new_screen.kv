@@ -16,9 +16,10 @@ Screens:
             MDIconButton: #кнопка для показа пароля (нужно доделать)
                 style: "standard"
                 icon: 'eye'
+                elevation: 2
                 theme_icon_color: "Custom"
                 icon_color: "white"
-                on_press: app.show_password()
+                on_press: app.change_theme() #доделать
                 pos_hint: {'center_x': .7, "center_y": .428}
 
         BoxLayout:
@@ -154,37 +155,31 @@ Screens:
         MDNavigationRail:
             md_bg_color: app.theme_cls.backgroundColor
             elevation: 1
-            anchor: 'bottom'
             type: "unselected"
-
-
-            MDNavigationRailMenuButton:
-                id: menu_
-                icon: "menu"
-                on_release: root.open_drop_item_menu(self)
-
-            MDNavigationRailFabButton:
-                icon: "home"
-
 
             CommonNavigationRailItem:
                 icon: "alert-circle"
+                radius: (24)*4
                 text: "Важные"
 
             CommonNavigationRailItem:
                 icon: "bookmark"
+                radius: (24)*4
                 text: "Активные"
 
             CommonNavigationRailItem:
-                icon: "archive"
-                text: "Все задачи"
+                icon: "robot"
+                radius: (24)*4
+                on_active: root.togpt()
 
             CommonNavigationRailItem:
                 icon: "account"
+                radius: (24)*4
                 text: "Аккаунт"
 
-        Screens:
+        ScreensSecond:
             transition: NoTransition()
+            GPT:
             MenuScreen:
             ProfileScreen:
             TaskScreen:
@@ -292,7 +287,7 @@ Screens:
             MDCheckbox:
                 checkbox_icon_down: 'delete'
                 on_press:
-                    app.change_theme()
+                    app.change_theme(1)
 
             MDListItemLeadingIcon:
                 icon: "calendar"
@@ -303,3 +298,94 @@ Screens:
 
             MDListItemSupportingText: #должен стоять дд
                 text: "kivydevelopment@gmail.com"
+<Command>
+    size_hint_y: None
+    pos_hint: {"right": .98}
+    height: self.texture_size[1]
+    padding: 12, 10
+    theme_text_color: "Custom"
+    text_color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgb: (1, 170/255, 23/4, 1)
+        RoundedRectangle:
+            size: self.width, self.height
+            pos: self.pos
+            radius: [23, 23, 23, 23]
+
+<Response>:
+    size_hint_y: None
+    pos_hint: {"x": .02}
+    height: self.texture_size[1]
+    padding: 12, 10
+    theme_text_color: "Custom"
+    text_color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgb: (1, 170/255, 23/255, 1)
+        RoundedRectangle:
+            size: self.width, self.height
+            pos: self.pos
+            radius: [23, 23, 23, 23]
+
+<GPT>:
+    name: 'gpt_screen'
+    MDScreen:
+        user_input : root.user_input
+        MDFloatLayout:
+            md_bg_color: app.theme_cls.backgroundColor
+            MDFloatLayout:
+                size_hint_y: .11
+                pos_hint: {'center_y':.95}
+                MDLabel:
+                    id: 'gpt_label'
+                    text: 'GIGACHAT'
+                    halign: 'left'
+                    size_hint: None, None
+                    size: 200, 100
+                    padding: 20, 20
+                    pos_hint: {'top': 1}
+                    text_color: 'white'
+                    font_name: 'Poppins-SemiBolt.ttf'
+
+            ScrollView:
+                size_hint_y: .77
+                pos_hint:{'x': .0, 'y': .116}
+
+
+                BoxLayout:
+                    id: 'chat_list'
+                    orientation: 'vertical'
+                    size: (root.width, root.height)
+
+                    height: self.minimum_height
+                    size_hint: None, None
+                    pso_hint: {'top': 10}
+                    cols: 1
+                    spacing: 7
+            MDFloatLayout:
+
+                size_hint_y: .11
+                pos_hint: {'center_y':.95}
+                MDFloatLayout:
+
+                    size_hint: .9, .7531
+                    padding: 15
+
+                    canvas:
+                        Color:
+                            rgb: (238/255, 238/255, 238/255, 1)
+                        RoundedRectangle:
+                            size: self.width, self.height
+
+                            pos: self.pos
+                            radius: [17]*4
+                    FieldText:
+                        mode: "on_focus"
+                        on_focus:
+                            text: ''
+                        text: 'Задайте вопрос' #подумать еще как реализовать, чтоб текст пропадал, когда наводишься
+                        #не через hint текст надо делать
+                        id: 'gpt_dialog'
+                        padding: 15
+                        text_color: 'black'
