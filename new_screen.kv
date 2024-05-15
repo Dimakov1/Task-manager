@@ -37,14 +37,16 @@ Screens:
 
             FieldText:
                 text_color: 'white'
+                color_up: 'white'
                 id: login
                 icon: 'account'
-                hint_text: 'Логин'
+                hinter: 'Логин'
 
             FieldText:
                 text_color: 'white'
+                color_up: 'white'
                 id: password
-                hint_text: 'Пароль'
+                hinter: 'Пароль'
                 password: True
                 icon: 'key'
 
@@ -76,9 +78,12 @@ Screens:
 
 <FieldText>:
     theme_text_color: "Custom"
+    hint_txt : hint_txt
+    id:hint_txt
     text_color_normal: root.text_color
     text_color_focus: root.text_color
     radius: [dp(19)]
+    on_text: root.check_text()
 
     MDTextFieldTrailingIcon:
         more_icon : root.more_icon
@@ -90,9 +95,10 @@ Screens:
         icon_color_focus: root.text_color
 
     MDTextFieldHintText:
-        text: root.hint_text
-        text_color_normal: root.text_color
-        text_color_focus: root.text_color
+        text: root.hinter
+
+        text_color_normal: root.color_up
+        text_color_focus: root.color_up
 
 
 
@@ -120,18 +126,20 @@ Screens:
             FieldText:
                 id: login
                 text_color: 'white'
+                color_up: 'white'
                 icon: 'account'
-                hint_text: 'Логин'
+                hinter: 'Логин'
             FieldText:
                 id: password
                 text_color: 'white'
+                color_up: 'white'
                 icon: 'key'
-                hint_text: 'Пароль'
+                hinter: 'Пароль'
             FieldText:
                 id: password2
                 text_color: 'white'
                 icon: 'key'
-                hint_text: 'Пароль'
+                hinter: 'Пароль'
             MDButton:
                 on_press: root.register()
                 MDButtonText:
@@ -330,8 +338,9 @@ Screens:
 
 <GPT>:
     name: 'gpt_screen'
+    user_input: user
+
     MDScreen:
-        user_input : root.user_input
         MDFloatLayout:
             md_bg_color: app.theme_cls.backgroundColor
             MDFloatLayout:
@@ -354,7 +363,7 @@ Screens:
 
 
                 BoxLayout:
-                    id: 'chat_list'
+                    id: chat_list
                     orientation: 'vertical'
                     size: (root.width, root.height)
 
@@ -372,20 +381,22 @@ Screens:
                     size_hint: .9, .7531
                     padding: 15
 
-                    canvas:
-                        Color:
-                            rgb: (238/255, 238/255, 238/255, 1)
-                        RoundedRectangle:
-                            size: self.width, self.height
 
-                            pos: self.pos
-                            radius: [17]*4
                     FieldText:
-                        mode: "on_focus"
-                        on_focus:
-                            text: ''
-                        text: 'Задайте вопрос' #подумать еще как реализовать, чтоб текст пропадал, когда наводишься
-                        #не через hint текст надо делать
-                        id: 'gpt_dialog'
-                        padding: 15
+                        id: user
                         text_color: 'black'
+                        hinter: 'Задайте вопрос' #подумать еще как реализовать, чтоб текст пропадал, когда наводишься
+                        #не через hint текст надо делать
+                        max_height: "200dp"
+                        mode: "filled"
+                        on_text_validate: root.send()
+                        padding: 15
+
+
+                    MDIconButton:
+                        icon: 'send'
+                        pos_hint: {'center_x':.91, 'center_y':.5}
+                        user_font_size: '18sp'
+                        on_release: root.send()
+
+

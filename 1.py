@@ -17,9 +17,8 @@ from kivy.metrics import dp
 from kivy.animation import Animation
 from kivymd.uix.list import MDListItemTrailingIcon
 import os
-from kivymd.uix.button import MDIconButton, MDButton
-from kivy.uix.modalview import ModalView
 from kivymd.uix.label import MDLabel
+from kivy.clock import Clock
 
 Window.size = (800, 670)
 
@@ -36,6 +35,7 @@ class RailScreen(Screen):  # не меняет тему, при нажатии �
             caller=item, items=menu_items, position="center"
         )
         self.drop_item_menu.open()
+
     # если хочешь обратиться к функции на данном экране, то нужно написать root.(назвние ф-ции)(self)
     # некоторые ф-ции можно вызвать ток в MDApp, например change_theme
     def togpt(self):
@@ -45,6 +45,7 @@ class RailScreen(Screen):  # не меняет тему, при нажатии �
 
 class Screens(ScreenManager):
     pass
+
 
 class ScreensSecond(ScreenManager):
     def choice(self, screen):
@@ -91,7 +92,6 @@ class Login(Screen):  # включить функции по регистрац�
             self.manager.current = 'rail_screen'
 
 
-
 # Экран регистрации
 class Register(Screen):
     login_t = ObjectProperty()  # TextInput для логина
@@ -124,7 +124,7 @@ class TrailingPressedIconButton(
 
 
 class MenuScreen(Screen):
-    def show(self): #тут закидываем таски на экран TaskScreen
+    def show(self):  # тут закидываем таски на экран TaskScreen
         task_screen = self.manager.get_screen('tasks')
         for i in range(10):
             task_screen.ids.tasks_.add_widget(ExpansionPanelItem(
@@ -137,23 +137,53 @@ class MenuScreen(Screen):
 class FieldText(MDTextField):
     text_color = ObjectProperty()
     icon = StringProperty()
-    hint_text = StringProperty()
+    hinter = StringProperty()
     more_icon = StringProperty()
+    color_up = ObjectProperty()
+    value = ''
+    def check_text(self):
+        if self.value == '':
+            self.value = self.hinter
+        if self.hint_txt.text != '':
+            self.hinter = ""
+            self.color_up = '#0D1117'
+        else:
+            self.color_up = 'white'
+            self.hinter = self.value
+
+
+
+
+
+
 
 class GPT(Screen):
     user_input = ObjectProperty()
+
+    def send(self):  # димас тебе доделать, еще нужно постоянную фокусировску сделатб
+        try:
+            value = self.user_input.text
+            if value != '':
+                self.ids.chat_list.add_widget(
+                    Command(text=value, size_hint_x=.2, halign='center'))  # Command ответ, Response = вопрос
+                self.ids.chat_list.add_widget(Response(text='Ответ', size_hint_x=.2, halign='center'))
+        finally:
+            self.ids.user.focus = True
+            self.user_input.text = ''
+
 
 
 class CommonNavigationRailItem(MDNavigationRailItem):
     text = StringProperty()
     icon = StringProperty()
 
+
 class ProfileScreen(Screen):
     pass
 
+
 class TaskScreen(Screen):
     pass
-
 
 
 class ExpansionPanelItem(MDExpansionPanel):
@@ -175,6 +205,7 @@ class ExpansionPanelItem(MDExpansionPanel):
             chevron
         ) if not panel.is_open else panel.set_chevron_up(chevron)
 
+
 class Command(MDLabel):
     text = StringProperty()
     size_hint_x = ObjectProperty()
@@ -182,12 +213,15 @@ class Command(MDLabel):
     font_name = "Poppins"
     font_size = 17
 
+
 class Response(MDLabel):
     text = StringProperty()
     size_hint_x = ObjectProperty()
     halign = StringProperty()
     font_name = "Poppins"
     font_size = 17
+
+
 class DemoApp(MDApp):
 
     def build(self):
@@ -197,7 +231,6 @@ class DemoApp(MDApp):
 
     def change_theme(self):  # ПОЧИНИТЬ
         pass
-
 
 
 if __name__ == "__main__":
