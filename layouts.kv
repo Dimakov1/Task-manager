@@ -3,9 +3,8 @@ Screens:
     transition: NoTransition()
     Login:
     Register:
-
     RailScreen:
-
+    AddTask:
 
 
 <Login>:
@@ -13,7 +12,16 @@ Screens:
     input_login: login
     input_password: password
     MDScreen:
-        md_bg_color: '#0D1117'
+        md_bg_color: app.theme_cls.backgroundColor
+        MDFloatLayout:
+            MDIconButton: #кнопка для показа пароля (нужно доделать)
+                style: "standard"
+                icon: 'eye'
+                theme_icon_color: "Custom"
+                icon_color: "white"
+                on_press: app.show_password()
+                pos_hint: {'center_x': .7, "center_y": .428}
+
         BoxLayout:
             size_hint: (.5, .5)
             pos_hint: {'center_x': .5, 'center_y': .5}
@@ -26,15 +34,20 @@ Screens:
                 text: 'Вход'
                 text_color: 'white'
                 halign: 'center'
+
             FieldText:
+                text_color: 'white'
                 id: login
                 icon: 'account'
                 hint_text: 'Логин'
 
             FieldText:
+                text_color: 'white'
                 id: password
                 hint_text: 'Пароль'
+                password: True
                 icon: 'key'
+
 
 
             BoxLayout:
@@ -62,13 +75,24 @@ Screens:
 
 
 <FieldText>:
+    theme_text_color: "Custom"
+    text_color_normal: root.text_color
+    text_color_focus: root.text_color
+    radius: [dp(19)]
+
+    MDTextFieldTrailingIcon:
+        more_icon : root.more_icon
+
     MDTextFieldLeadingIcon:
         icon: root.icon
+        theme_icon_color: "Custom"
+        icon_color_normal: root.text_color
+        icon_color_focus: root.text_color
 
     MDTextFieldHintText:
         text: root.hint_text
-        text_color_normal: 'white'
-        text_color_focus: 'white'
+        text_color_normal: root.text_color
+        text_color_focus: root.text_color
 
 
 
@@ -79,24 +103,39 @@ Screens:
     password_t: password
     password_t2: password2
     MDScreen:
-        md_bg_color: self.theme_cls.backgroundColor
+        md_bg_color: app.theme_cls.backgroundColor
         BoxLayout:
-            padding: '100dp'
+            size_hint: (.5, .5)
+            pos_hint: {'center_x': .5, 'center_y': .3}
+            padding: '10dp'
             orientation: 'vertical'
             md_bg_color: app.theme_cls.primaryColor
             spacing: "40"
             MDLabel:
                 text: "Регистрация"
-            MDTextField:
+                font_style: "Headline"
+                text_color: 'white'
+                halign: 'center'
+
+            FieldText:
                 id: login
-            MDTextField:
+                text_color: 'white'
+                icon: 'account'
+                hint_text: 'Логин'
+            FieldText:
                 id: password
-            MDTextField:
+                text_color: 'white'
+                icon: 'key'
+                hint_text: 'Пароль'
+            FieldText:
                 id: password2
+                text_color: 'white'
+                icon: 'key'
+                hint_text: 'Пароль'
             MDButton:
                 on_press: root.register()
                 MDButtonText:
-                    text: 'зарегистрироваться'
+                    text: 'Зарегистрироваться'
             MDButton:
                 on_press:
                     root.login_t.text = ""
@@ -114,7 +153,10 @@ Screens:
         orientation: 'horizontal'
 
         MDNavigationRail:
-            type: "labeled"
+            md_bg_color: app.theme_cls.backgroundColor
+            elevation: 1
+            anchor: 'bottom'
+            type: "unselected"
 
 
             MDNavigationRailMenuButton:
@@ -141,6 +183,13 @@ Screens:
             CommonNavigationRailItem:
                 icon: "account"
                 text: "Аккаунт"
+            
+            CommonNavigationRailItem:
+                icon: "plus-box"
+                text: "Добавить задачу"
+                theme_text_color: "Custom"
+                text_color: 'green'
+                on_press: root.manager.current = 'add_task'
 
         Screens:
             transition: NoTransition()
@@ -160,7 +209,7 @@ Screens:
 <MenuScreen>:
     name: 'menu_screen'
     MDScreen:
-        md_bg_color: self.theme_cls.backgroundColor
+        md_bg_color: app.theme_cls.backgroundColor
         MDButton:
             pos_hint: {"center_x": .5, "center_y": .5}
             style: "filled"
@@ -180,7 +229,7 @@ Screens:
 <ProfileScreen>:
     name: 'profile'
     MDScreen:
-        md_bg_color: self.theme_cls.backgroundColor
+        md_bg_color: app.theme_cls.backgroundColor
         MDButton:
             pos_hint: {"center_x": .5, "center_y": .5}
             style: "filled"
@@ -195,3 +244,62 @@ Screens:
                 text: "Account"
                 theme_text_color: "Custom"
                 text_color: "white"
+
+<AddTask>:
+    name: 'add_task'
+    MDScreen:
+        md_bg_color: app.theme_cls.backgroundColor
+        BoxLayout:
+            orientation: 'vertical'
+            padding: '10dp'
+            spacing: '40'
+            size_hint: (.7, .6)
+            pos_hint: {'center_x': .5, 'center_y': .6}
+
+            MDLabel:
+                text: "Новая задача"
+                font_style: "Headline"
+                text_color: 'white'
+                halign: 'center'
+
+            FieldText:
+                id: new_task_name
+                text_color: 'white'
+                icon: 'pin'
+                hint_text: 'Название задачи'
+
+            FieldText:
+                id: new_task_description
+                text_color: 'white'
+                icon: 'pen'
+                hint_text: 'Описание задачи'
+                MDTextFieldMaxLengthText:
+                    max_text_length: 60
+                    text_color_normal: 'white'
+                    text_color_focus: 'white'
+            
+            BoxLayout:
+                orientation : 'horizontal'
+
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: "green"
+                    size_hint_x: None
+                    on_press: root.login_user()
+                    MDButtonText:
+                        text: '[b]ДОБАВИТЬ ЗАДАЧУ[/b]'
+                    MDButtonIcon:
+                        icon: 'plus'
+
+                Widget:
+                    size_hint_x: 1
+
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: "red"
+                    size_hint_x: None
+                    on_press: root.manager.current = 'rail_screen'
+                    MDButtonText:
+                        text: '[b]НАЗАД[/b]'
