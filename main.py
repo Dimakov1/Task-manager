@@ -6,14 +6,16 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import NoTransition, ScreenManager
 from kivymd.app import MDApp
 from kivymd.uix.navigationrail import MDNavigationRail, MDNavigationRailItem
-from kivymd.uix.textfield import MDTextField, MDTextFieldHintText
+from kivymd.uix.textfield import MDTextField, MDTextFieldHintText, MDTextFieldHelperText
+from kivy.uix.textinput import TextInput
+
 import sqlite3
 from kivy.properties import ObjectProperty
+from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
+from kivy.core.window import Window
 import os
 
-
-
-class RailScreen(Screen):  
+class RailScreen(Screen):  # не меняет тему, при нажатии на кнопку появляется ошибка
     def open_drop_item_menu(self, item):  # открывает меню
         menu_items = [
             {
@@ -32,14 +34,15 @@ class RailScreen(Screen):
 class Screens(ScreenManager):
     pass
 
-class Login(Screen): #включить функции по регистрации (бэк)
 
-    def create_Bd(): # создаём БД 
+class Login(Screen):  # включить функции по регистрации (бэк)
+
+    def create_Bd():  # создаём БД
         global database
         global cursor
         current_directory = os.path.dirname(__file__)
         file_path = os.path.join(current_directory, 'Logins.db')
-        database = sqlite3.connect(file_path) 
+        database = sqlite3.connect(file_path)
         cursor = database.cursor()
 
         cursor.execute("""CREATE TABLE IF NOT EXISTS users(
@@ -47,28 +50,38 @@ class Login(Screen): #включить функции по регистраци�
             password TEXT
         )""")
         database.commit()
-    
-    input_login = ObjectProperty() # TextInput для логина
-    input_password = ObjectProperty() # TextInput для пароля
 
-    def login_user(self): # Проверка данных и вход
+    input_login = ObjectProperty()  # TextInput для логина
+    input_password = ObjectProperty()  # TextInput для пароля
+
+    def login_user(self):  # Проверка данных и вход
         if cursor.execute(f"SELECT login FROM users WHERE login = '{self.input_login.text}'").fetchone() is None:
-            print("Такого пользователя не существует") 
-        elif cursor.execute(f"SELECT login, password FROM users WHERE login = '{self.input_login.text}'").fetchone()[1] != self.input_password.text:
+            print("Такого пользователя не существует")
+        elif cursor.execute(f"SELECT login, password FROM users WHERE login = '{self.input_login.text}'").fetchone()[
+            1] != self.input_password.text:
             print("Неверный пароль")
         else:
-            print("вход осуществлен")
+            MDSnackbar(
+                MDSnackbarText(
+                    text="Вход успешно выполнен",
+                    theme_text_color="Custom",
+                    text_color='white',
+                ),
+                background_color='#0e134f',
+                pos_hint={"center_x": 0.5},
+                size_hint_x=0.5,
+                radius= [(20)]*4
+            ).open()
             self.manager.current = 'rail_screen'
 
 
 # Экран регистрации
 class Register(Screen):
-    
-    login_t = ObjectProperty() # TextInput для логина
-    password_t = ObjectProperty() # TextInput для пароля
-    password_t2 = ObjectProperty() # TextInput для второго пароля
+    login_t = ObjectProperty()  # TextInput для логина
+    password_t = ObjectProperty()  # TextInput для пароля
+    password_t2 = ObjectProperty()  # TextInput для второго пароля
 
-    def register(self): # проверка данных и запись в БД
+    def register(self):  # проверка данных и запись в БД
         print(self.login_t.text, self.password_t.text, self.password_t2.text)
         if len(self.login_t.text) <= 4:
             print("Логин должен содержать более 4 символов")
@@ -90,9 +103,13 @@ class Register(Screen):
 class MenuScreen(Screen):
     pass
 
+
 class FieldText(MDTextField):
+    text_color = ObjectProperty()
     icon = StringProperty()
     hint_text = StringProperty()
+    more_icon = StringProperty()
+
 
 class CommonNavigationRailItem(MDNavigationRailItem):
     text = StringProperty()
@@ -102,21 +119,20 @@ class CommonNavigationRailItem(MDNavigationRailItem):
 class ProfileScreen(Screen):
     pass
 
-
+class AddTask(Screen):
+    pass #ПОДКЛЮЧИТЬ БАЗУ ДАННЫХ ДЛЯ СОЗДАНИЯ НОВЫХ ТАСКОВ
 
 
 class DemoApp(MDApp):
-    def change_theme(self):  # меняет тему
-        if self.theme_cls.theme_style == "Dark":
-            self.theme_cls.primary_palette = "Rosybrown"
-            self.theme_cls.theme_style = "Light"
-        else:
-            self.theme_cls.theme_style = "Dark"
-            self.theme_cls.primary_palette = "Orange"
+    def change_theme(self):  # ПОЧИНИТЬ
+        pass
 
     def build(self):
         Login.create_Bd()
+        self.theme_cls.backgroundColor = '#0D1117'
         return Builder.load_file('new_screen.kv')
 
+    def show_password(self): # показывает/скрывает пароль не полуилось реализовал
+        print(self.password.text)
 
 DemoApp().run()
