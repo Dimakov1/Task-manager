@@ -39,8 +39,7 @@ class RailScreen(Screen):  # не меняет тему, при нажатии �
     # если хочешь обратиться к функции на данном экране, то нужно написать root.(назвние ф-ции)(self)
     # некоторые ф-ции можно вызвать ток в MDApp, например change_theme
     def togpt(self):
-        gpt = ScreensSecond.get_screen('gpt_screen')
-        ScreensSecond.choice(gpt)
+        pass
 
 
 class Screens(ScreenManager):
@@ -151,6 +150,8 @@ class FieldText(MDTextField):
             self.color_up = 'white'
             self.hinter = self.value
 
+class AddTask(Screen):
+    pass #ПОДКЛЮЧИТЬ БАЗУ ДАННЫХ ДЛЯ СОЗДАНИЯ НОВЫХ ТАСКОВ
 
 
 

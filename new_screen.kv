@@ -4,7 +4,7 @@ Screens:
     Login:
     Register:
     RailScreen:
-
+    AddTask:
 
 <Login>:
     name: 'login'
@@ -185,12 +185,20 @@ Screens:
                 radius: (24)*4
                 text: "Аккаунт"
 
+            CommonNavigationRailItem:
+                icon: "plus-box"
+                text: "Добавить задачу"
+                theme_text_color: "Custom"
+                text_color: 'green'
+                on_press: root.manager.current = 'add_task'
+
+
         ScreensSecond:
             transition: NoTransition()
-            GPT:
             MenuScreen:
             ProfileScreen:
             TaskScreen:
+            GPT:
 
 
 <CommonNavigationRailItem>
@@ -243,6 +251,65 @@ Screens:
                 text: "Account"
                 theme_text_color: "Custom"
                 text_color: "white"
+
+<AddTask>:
+    name: 'add_task'
+    MDScreen:
+        md_bg_color: app.theme_cls.backgroundColor
+        BoxLayout:
+            orientation: 'vertical'
+            padding: '10dp'
+            spacing: '40'
+            size_hint: (.7, .6)
+            pos_hint: {'center_x': .5, 'center_y': .6}
+
+            MDLabel:
+                text: "Новая задача"
+                font_style: "Headline"
+                text_color: 'white'
+                halign: 'center'
+
+            FieldText:
+                id: new_task_name
+                text_color: 'white'
+                icon: 'pin'
+                hint_text: 'Название задачи'
+
+            FieldText:
+                id: new_task_description
+                text_color: 'white'
+                icon: 'pen'
+                hint_text: 'Описание задачи'
+                MDTextFieldMaxLengthText:
+                    max_text_length: 60
+                    text_color_normal: 'white'
+                    text_color_focus: 'white'
+
+            BoxLayout:
+                orientation : 'horizontal'
+
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: "green"
+                    size_hint_x: None
+                    on_press: root.login_user()
+                    MDButtonText:
+                        text: '[b]ДОБАВИТЬ ЗАДАЧУ[/b]'
+                    MDButtonIcon:
+                        icon: 'plus'
+
+                Widget:
+                    size_hint_x: 1
+
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: "red"
+                    size_hint_x: None
+                    on_press: root.manager.current = 'rail_screen'
+                    MDButtonText:
+                        text: '[b]НАЗАД[/b]'
 
 <TaskScreen>:
     name: 'tasks'
