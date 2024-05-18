@@ -20,6 +20,7 @@ import os
 from kivymd.uix.label import MDLabel
 from kivy.uix.screenmanager import NoTransition
 
+
 Window.size = (800, 670)
 
 
@@ -37,9 +38,14 @@ class RailScreen(Screen):  # не меняет тему, при нажатии �
         self.drop_item_menu.open()
 
     # если хочешь обратиться к функции на данном экране, то нужно написать root.(назвние ф-ции)(self)
-    # некоторые ф-ции можно вызвать ток в MDApp, например change_theme
-    def togpt(self):
-        pass
+    # некоторые ф-ции можно вызвать ток в MDApp, например change_them
+
+    def on_nav_item_pressed(self, instance, touch):
+        if instance.collide_point(*touch.pos):
+            if isinstance(instance, MDNavigationRailItem):
+                screen_name = instance.screen
+                self.manager_2.current = screen_name
+
 
 
 class Screens(ScreenManager):
@@ -47,8 +53,7 @@ class Screens(ScreenManager):
 
 
 class ScreensSecond(ScreenManager):
-    def choice(self, screen):
-        self.manager.current = screen
+    pass
 
 
 class Login(Screen):  # включить функции по регистрации (бэк)
@@ -144,12 +149,16 @@ class FieldText(MDTextField):
     def check_text(self):
         if self.value == '':
             self.value = self.hinter
-        if self.hint_txt.text != '':
+        if self.hint_txt.text:
             self.hinter = ""
             self.color_up = '#0D1117'
+            self.hint_txt.focus = False
+            self.hint_txt.focus = True
         else:
             self.color_up = 'white'
             self.hinter = self.value
+            self.hint_txt.focus = False
+            self.hint_txt.focus = True
 
 
 class AddTask(Screen):
@@ -174,6 +183,7 @@ class GPT(Screen):
 class CommonNavigationRailItem(MDNavigationRailItem):
     text = StringProperty()
     icon = StringProperty()
+
 
 
 class ProfileScreen(Screen):
@@ -229,13 +239,14 @@ class DemoApp(MDApp):
                    'add_task.kv', 'task_screen.kv', 'gpt.kv']
         for screen in screens:
             Builder.load_file(f'kivy/{screen}')
-
         sm_one = ScreenManager(transition=NoTransition())
         sm_one.add_widget(Login(name="login"))
         sm_one.add_widget(AddTask(name="add_task"))
         sm_one.add_widget(Register(name="register"))
         sm_one.add_widget(RailScreen(name="rail_screen"))
         return sm_one
+
+
 
     def change_theme(self):  # ПОЧИНИТЬ
         pass
