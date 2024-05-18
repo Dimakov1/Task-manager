@@ -4,6 +4,7 @@
     BoxLayout:
         orientation: 'horizontal'
 
+
         MDNavigationRail:
             md_bg_color: app.theme_cls.backgroundColor
             elevation: 1
@@ -13,16 +14,19 @@
                 icon: "alert-circle"
                 radius: (24)*4
                 text: "Важные"
+                screen: 'menu_screen'
+
 
             CommonNavigationRailItem:
                 icon: "bookmark"
                 radius: (24)*4
                 text: "Активные"
+                screen: "profile"
 
             CommonNavigationRailItem:
                 icon: "robot"
                 radius: (24)*4
-                on_active: root.togpt()
+                screen: "gpt_screen"
 
             CommonNavigationRailItem:
                 icon: "account"
@@ -38,6 +42,7 @@
 
 
         ScreensSecond:
+            id: "screens_second"
             transition: NoTransition()
             MenuScreen:
             ProfileScreen:
