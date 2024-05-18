@@ -228,7 +228,7 @@ class DemoApp(MDApp):
         screens = ['classes.kv', 'login.kv', 'rail_screen.kv', 'register.kv', 'menu_screen.kv', 'profile.kv',
                    'add_task.kv', 'task_screen.kv', 'gpt.kv']
         for screen in screens:
-            Builder.load_file(screen)
+            Builder.load_file(f'kivy/{screen}')
 
         sm_one = ScreenManager(transition=NoTransition())
         sm_one.add_widget(Login(name="login"))
