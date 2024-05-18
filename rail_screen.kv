@@ -1,0 +1,45 @@
+#: import NoTransition kivy.uix.screenmanager.NoTransition
+<RailScreen>:
+    name: 'rail_screen'
+    BoxLayout:
+        orientation: 'horizontal'
+
+        MDNavigationRail:
+            md_bg_color: app.theme_cls.backgroundColor
+            elevation: 1
+            type: "unselected"
+
+            CommonNavigationRailItem:
+                icon: "alert-circle"
+                radius: (24)*4
+                text: "Важные"
+
+            CommonNavigationRailItem:
+                icon: "bookmark"
+                radius: (24)*4
+                text: "Активные"
+
+            CommonNavigationRailItem:
+                icon: "robot"
+                radius: (24)*4
+                on_active: root.togpt()
+
+            CommonNavigationRailItem:
+                icon: "account"
+                radius: (24)*4
+                text: "Аккаунт"
+
+            CommonNavigationRailItem:
+                icon: "plus-box"
+                text: "Добавить задачу"
+                theme_text_color: "Custom"
+                text_color: 'green'
+                on_press: root.manager.current = 'add_task'
+
+
+        ScreensSecond:
+            transition: NoTransition()
+            MenuScreen:
+            ProfileScreen:
+            TaskScreen:
+            GPT:

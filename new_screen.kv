@@ -4,7 +4,7 @@ Screens:
     Login:
     Register:
     RailScreen:
-
+    AddTask:
 
 <Login>:
     name: 'login'
@@ -16,9 +16,10 @@ Screens:
             MDIconButton: #кнопка для показа пароля (нужно доделать)
                 style: "standard"
                 icon: 'eye'
+                elevation: 2
                 theme_icon_color: "Custom"
                 icon_color: "white"
-                on_press: app.show_password()
+                on_press: app.change_theme() #доделать
                 pos_hint: {'center_x': .7, "center_y": .428}
 
         BoxLayout:
@@ -36,14 +37,16 @@ Screens:
 
             FieldText:
                 text_color: 'white'
+                color_up: 'white'
                 id: login
                 icon: 'account'
-                hint_text: 'Логин'
+                hinter: 'Логин'
 
             FieldText:
                 text_color: 'white'
+                color_up: 'white'
                 id: password
-                hint_text: 'Пароль'
+                hinter: 'Пароль'
                 password: True
                 icon: 'key'
 
@@ -75,9 +78,12 @@ Screens:
 
 <FieldText>:
     theme_text_color: "Custom"
+    hint_txt : hint_txt
+    id:hint_txt
     text_color_normal: root.text_color
     text_color_focus: root.text_color
     radius: [dp(19)]
+    on_text: root.check_text()
 
     MDTextFieldTrailingIcon:
         more_icon : root.more_icon
@@ -89,9 +95,10 @@ Screens:
         icon_color_focus: root.text_color
 
     MDTextFieldHintText:
-        text: root.hint_text
-        text_color_normal: root.text_color
-        text_color_focus: root.text_color
+        text: root.hinter
+
+        text_color_normal: root.color_up
+        text_color_focus: root.color_up
 
 
 
@@ -119,18 +126,20 @@ Screens:
             FieldText:
                 id: login
                 text_color: 'white'
+                color_up: 'white'
                 icon: 'account'
-                hint_text: 'Логин'
+                hinter: 'Логин'
             FieldText:
                 id: password
                 text_color: 'white'
+                color_up: 'white'
                 icon: 'key'
-                hint_text: 'Пароль'
+                hinter: 'Пароль'
             FieldText:
                 id: password2
                 text_color: 'white'
                 icon: 'key'
-                hint_text: 'Пароль'
+                hinter: 'Пароль'
             MDButton:
                 on_press: root.register()
                 MDButtonText:
@@ -154,39 +163,42 @@ Screens:
         MDNavigationRail:
             md_bg_color: app.theme_cls.backgroundColor
             elevation: 1
-            anchor: 'bottom'
             type: "unselected"
-
-
-            MDNavigationRailMenuButton:
-                id: menu_
-                icon: "menu"
-                on_release: root.open_drop_item_menu(self)
-
-            MDNavigationRailFabButton:
-                icon: "home"
-
 
             CommonNavigationRailItem:
                 icon: "alert-circle"
+                radius: (24)*4
                 text: "Важные"
 
             CommonNavigationRailItem:
                 icon: "bookmark"
+                radius: (24)*4
                 text: "Активные"
 
             CommonNavigationRailItem:
-                icon: "archive"
-                text: "Все задачи"
+                icon: "robot"
+                radius: (24)*4
+                on_active: root.togpt()
 
             CommonNavigationRailItem:
                 icon: "account"
+                radius: (24)*4
                 text: "Аккаунт"
 
-        Screens:
+            CommonNavigationRailItem:
+                icon: "plus-box"
+                text: "Добавить задачу"
+                theme_text_color: "Custom"
+                text_color: 'green'
+                on_press: root.manager.current = 'add_task'
+
+
+        ScreensSecond:
             transition: NoTransition()
             MenuScreen:
             ProfileScreen:
+            TaskScreen:
+            GPT:
 
 
 <CommonNavigationRailItem>
@@ -207,7 +219,9 @@ Screens:
             style: "filled"
             theme_bg_color: "Custom"
             md_bg_color: "green"
-            on_press: root.manager.current = 'profile'
+            on_press:
+                root.manager.current = 'tasks'
+                root.show()
 
             MDButtonIcon:
                 icon: "alarm"
@@ -227,7 +241,8 @@ Screens:
             style: "filled"
             theme_bg_color: "Custom"
             md_bg_color: "green"
-            on_press: root.manager.current = 'menu_screen'
+            on_press:
+                root.manager.current = 'menu_screen'
 
             MDButtonIcon:
                 icon: "account"
@@ -236,3 +251,219 @@ Screens:
                 text: "Account"
                 theme_text_color: "Custom"
                 text_color: "white"
+
+<AddTask>:
+    name: 'add_task'
+    MDScreen:
+        md_bg_color: app.theme_cls.backgroundColor
+        BoxLayout:
+            orientation: 'vertical'
+            padding: '10dp'
+            spacing: '40'
+            size_hint: (.7, .6)
+            pos_hint: {'center_x': .5, 'center_y': .6}
+
+            MDLabel:
+                text: "Новая задача"
+                font_style: "Headline"
+                text_color: 'white'
+                halign: 'center'
+
+            FieldText:
+                id: new_task_name
+                text_color: 'white'
+                icon: 'pin'
+                hint_text: 'Название задачи'
+
+            FieldText:
+                id: new_task_description
+                text_color: 'white'
+                icon: 'pen'
+                hint_text: 'Описание задачи'
+                MDTextFieldMaxLengthText:
+                    max_text_length: 60
+                    text_color_normal: 'white'
+                    text_color_focus: 'white'
+
+            BoxLayout:
+                orientation : 'horizontal'
+
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: "green"
+                    size_hint_x: None
+                    on_press: root.login_user()
+                    MDButtonText:
+                        text: '[b]ДОБАВИТЬ ЗАДАЧУ[/b]'
+                    MDButtonIcon:
+                        icon: 'plus'
+
+                Widget:
+                    size_hint_x: 1
+
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: "red"
+                    size_hint_x: None
+                    on_press: root.manager.current = 'rail_screen'
+                    MDButtonText:
+                        text: '[b]НАЗАД[/b]'
+
+<TaskScreen>:
+    name: 'tasks'
+    MDScreen:
+        md_bg_color: app.theme_cls.backgroundColor
+        ScrollView:
+            size_hint_x: .5
+            md_bg_color: app.theme_cls.backgroundColor
+            pos_hint: {"center_x": .5, "center_y": .5}
+
+            MDList:
+                id: tasks_
+
+<ExpansionPanelItem>:
+
+    MDExpansionPanelHeader:
+
+        MDListItem:
+            theme_bg_color: "Custom"
+            md_bg_color: '#819090'
+            ripple_effect: False
+
+            MDListItemSupportingText:
+                text: root.header_text
+
+            TrailingPressedIconButton:
+                id: chevron
+                icon: "chevron-right"
+                on_release: root.tap_expansion_chevron(root, chevron)
+
+
+
+    MDExpansionPanelContent:
+        orientation: "vertical"
+        ripple_effect: False
+        padding: "12dp", 0, "12dp", "12dp"
+        md_bg_color: '#819090'
+
+        MDLabel:
+            adaptive_height: True
+            padding_x: "16dp"
+            padding_y: "12dp"
+
+        MDListItem:
+            theme_bg_color: "Custom"
+            md_bg_color: '#819090'
+            ripple_effect: False
+
+
+            MDCheckbox:
+                checkbox_icon_down: 'delete'
+                on_press:
+                    app.change_theme(1)
+
+            MDListItemLeadingIcon:
+                icon: "calendar"
+
+
+            MDListItemHeadlineText: #описание
+                text: root.description
+
+            MDListItemSupportingText: #должен стоять дд
+                text: "kivydevelopment@gmail.com"
+<Command>
+    size_hint_y: None
+    pos_hint: {"right": .98}
+    height: self.texture_size[1]
+    padding: 12, 10
+    theme_text_color: "Custom"
+    text_color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgb: (1, 170/255, 23/4, 1)
+        RoundedRectangle:
+            size: self.width, self.height
+            pos: self.pos
+            radius: [23, 23, 23, 23]
+
+<Response>:
+    size_hint_y: None
+    pos_hint: {"x": .02}
+    height: self.texture_size[1]
+    padding: 12, 10
+    theme_text_color: "Custom"
+    text_color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgb: (1, 170/255, 23/255, 1)
+        RoundedRectangle:
+            size: self.width, self.height
+            pos: self.pos
+            radius: [23, 23, 23, 23]
+
+<GPT>:
+    name: 'gpt_screen'
+    user_input: user
+
+    MDScreen:
+        MDFloatLayout:
+            md_bg_color: app.theme_cls.backgroundColor
+            MDFloatLayout:
+                size_hint_y: .11
+                pos_hint: {'center_y':.95}
+                MDLabel:
+                    id: 'gpt_label'
+                    text: 'GIGACHAT'
+                    halign: 'left'
+                    size_hint: None, None
+                    size: 200, 100
+                    padding: 20, 20
+                    pos_hint: {'top': 1}
+                    text_color: 'white'
+                    font_name: 'Poppins-SemiBolt.ttf'
+
+            ScrollView:
+                size_hint_y: .77
+                pos_hint:{'x': .0, 'y': .116}
+
+
+                BoxLayout:
+                    id: chat_list
+                    orientation: 'vertical'
+                    size: (root.width, root.height)
+
+                    height: self.minimum_height
+                    size_hint: None, None
+                    pso_hint: {'top': 10}
+                    cols: 1
+                    spacing: 7
+            MDFloatLayout:
+
+                size_hint_y: .11
+                pos_hint: {'center_y':.95}
+                MDFloatLayout:
+
+                    size_hint: .9, .7531
+                    padding: 15
+
+
+                    FieldText:
+                        id: user
+                        text_color: 'black'
+                        hinter: 'Задайте вопрос' #подумать еще как реализовать, чтоб текст пропадал, когда наводишься
+                        #не через hint текст надо делать
+                        max_height: "200dp"
+                        mode: "filled"
+                        on_text_validate: root.send()
+                        padding: 15
+
+
+                    MDIconButton:
+                        icon: 'send'
+                        pos_hint: {'center_x':.91, 'center_y':.5}
+                        user_font_size: '18sp'
+                        on_release: root.send()
+
+

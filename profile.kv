@@ -1,0 +1,19 @@
+<ProfileScreen>:
+    name: 'profile'
+    MDScreen:
+        md_bg_color: app.theme_cls.backgroundColor
+        MDButton:
+            pos_hint: {"center_x": .5, "center_y": .5}
+            style: "filled"
+            theme_bg_color: "Custom"
+            md_bg_color: "green"
+            on_press:
+                root.manager.current = 'menu_screen'
+
+            MDButtonIcon:
+                icon: "account"
+
+            MDButtonText:
+                text: "Account"
+                theme_text_color: "Custom"
+                text_color: "white"
