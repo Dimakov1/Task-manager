@@ -2,18 +2,29 @@ from kivy.lang import Builder
 from kivy.properties import StringProperty
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import Screen
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.screenmanager import NoTransition, ScreenManager
+from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
-from kivymd.uix.navigationrail import MDNavigationRail, MDNavigationRailItem
-from kivymd.uix.textfield import MDTextField, MDTextFieldHintText, MDTextFieldHelperText
-from kivy.uix.textinput import TextInput
-
+from kivymd.uix.navigationrail import MDNavigationRailItem
+from kivymd.uix.textfield import MDTextField
 import sqlite3
+from kivy.core.window import Window
+from kivymd.uix.expansionpanel import MDExpansionPanel
 from kivy.properties import ObjectProperty
 from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
-from kivy.core.window import Window
+from kivymd.uix.behaviors import RotateBehavior
+from kivy.uix.behaviors import ButtonBehavior
+from kivy.metrics import dp
+from kivy.animation import Animation
+from kivymd.uix.list import MDListItemTrailingIcon
 import os
+from kivymd.uix.label import MDLabel
+from kivy.uix.screenmanager import NoTransition
+from kivymd.uix.pickers import MDDockedDatePicker
+import datetime 
+
+
+Window.size = (800, 670)
+
 
 class RailScreen(Screen):  # не меняет тему, при нажатии на кнопку появляется ошибка
     def open_drop_item_menu(self, item):  # открывает меню
@@ -27,11 +38,23 @@ class RailScreen(Screen):  # не меняет тему, при нажатии �
             caller=item, items=menu_items, position="center"
         )
         self.drop_item_menu.open()
+
     # если хочешь обратиться к функции на данном экране, то нужно написать root.(назвние ф-ции)(self)
-    # некоторые ф-ции можно вызвать ток в MDApp, например change_theme
+    # некоторые ф-ции можно вызвать ток в MDApp, например change_them
+
+    def on_nav_item_pressed(self, instance, touch):
+        if instance.collide_point(*touch.pos):
+            if isinstance(instance, MDNavigationRailItem):
+                screen_name = instance.screen
+                self.manager_2.current = screen_name
+
 
 
 class Screens(ScreenManager):
+    pass
+
+
+class ScreensSecond(ScreenManager):
     pass
 
 
@@ -70,7 +93,7 @@ class Login(Screen):  # включить функции по регистрац�
                 background_color='#0e134f',
                 pos_hint={"center_x": 0.5},
                 size_hint_x=0.5,
-                radius= [(20)]*4
+                radius=[(20)] * 4
             ).open()
             self.manager.current = 'rail_screen'
 
@@ -100,15 +123,97 @@ class Register(Screen):
             self.manager.current = 'login'
 
 
-class MenuScreen(Screen):
+class TrailingPressedIconButton(
+    ButtonBehavior, RotateBehavior, MDListItemTrailingIcon
+):
     pass
+
+
+class MenuScreen(Screen):
+    def show(self):  # тут закидываем таски на экран TaskScreen
+        task_screen = self.manager.get_screen('tasks')
+        for i in range(10):
+            task_screen.ids.tasks_.add_widget(ExpansionPanelItem(
+
+                header_text=f"Задача {i}",
+                description=f"Описание задачи {i}"
+            ))
 
 
 class FieldText(MDTextField):
     text_color = ObjectProperty()
     icon = StringProperty()
-    hint_text = StringProperty()
+    hinter = StringProperty()
     more_icon = StringProperty()
+    color_up = ObjectProperty()
+    value = ''
+
+    def check_text(self):
+        if self.value == '':
+            self.value = self.hinter
+        if self.hint_txt.text:
+            self.hinter = ""
+            self.color_up = '#0D1117'
+            self.hint_txt.focus = False
+            self.hint_txt.focus = True
+        else:
+            self.color_up = 'white'
+            self.hinter = self.value
+            self.hint_txt.focus = False
+            self.hint_txt.focus = True
+
+    
+
+class AddTask(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.date_dialog_open = False
+
+    def show_date_picker(self, focus):
+        if not focus or self.date_dialog_open:
+            return
+        self.date_dialog_open = True
+
+        date_dialog = MDDockedDatePicker(min_date=datetime.date.today(), max_date=datetime.date(
+            datetime.date.today().year + 10,
+            datetime.date.today().month,
+            datetime.date.today().day,
+        ))
+        date_dialog.pos = [
+            self.ids.date_picker.center_x - date_dialog.width / 2,
+            self.ids.date_picker.y - date_dialog.height / 2,
+        ]
+        date_dialog.bind(on_ok=self.on_ok, on_cancel=self.on_cancel, on_dismiss=self.on_dismiss)
+        date_dialog.open()
+
+    def on_ok(self, instance):
+        self.ids.date_picker.text = str(instance.get_date()[0])
+        self.date_dialog_open = False
+        self.ids.date_picker.focus = False
+        instance.dismiss()
+
+    def on_cancel(self, instance):
+        self.date_dialog_open = False
+        instance.dismiss()
+    
+    def on_dismiss(self, instance):
+        self.date_dialog_open = False
+     # ПОДКЛЮЧИТЬ БАЗУ ДАННЫХ ДЛЯ СОЗДАНИЯ НОВЫХ ТАСКОВ
+
+
+class GPT(Screen):
+    user_input = ObjectProperty()
+
+    def send(self):  # димас тебе доделать, еще нужно постоянную фокусировску сделатб
+        try:
+            value = self.user_input.text
+            if value != '':
+                self.ids.chat_list.add_widget(
+                    Command(text=value, size_hint_x=.2, halign='center'))  # Command ответ, Response = вопрос
+                self.ids.chat_list.add_widget(Response(text='Ответ', size_hint_x=.2, halign='center'))
+        finally:
+            self.ids.user.focus = True
+            self.user_input.text = ''
 
 
 class CommonNavigationRailItem(MDNavigationRailItem):
@@ -116,23 +221,72 @@ class CommonNavigationRailItem(MDNavigationRailItem):
     icon = StringProperty()
 
 
+
 class ProfileScreen(Screen):
     pass
 
-class AddTask(Screen):
-    pass #ПОДКЛЮЧИТЬ БАЗУ ДАННЫХ ДЛЯ СОЗДАНИЯ НОВЫХ ТАСКОВ
+
+class TaskScreen(Screen):
+    pass
+
+
+class ExpansionPanelItem(MDExpansionPanel):
+    header_text = StringProperty()
+    support_text = StringProperty()
+    description = StringProperty()
+
+    def tap_expansion_chevron(
+            self, panel: MDExpansionPanel, chevron: TrailingPressedIconButton
+    ):
+        Animation(
+            padding=[0, dp(12), 0, dp(12)]
+            if not panel.is_open
+            else [0, 0, 0, 0],
+            d=0.2,
+        ).start(panel)
+        panel.open() if not panel.is_open else panel.close()
+        panel.set_chevron_down(
+            chevron
+        ) if not panel.is_open else panel.set_chevron_up(chevron)
+
+
+class Command(MDLabel):
+    text = StringProperty()
+    size_hint_x = ObjectProperty()
+    halign = StringProperty()
+    font_name = "Poppins"
+    font_size = 17
+
+
+class Response(MDLabel):
+    text = StringProperty()
+    size_hint_x = ObjectProperty()
+    halign = StringProperty()
+    font_name = "Poppins"
+    font_size = 17
 
 
 class DemoApp(MDApp):
-    def change_theme(self):  # ПОЧИНИТЬ
-        pass
 
     def build(self):
         Login.create_Bd()
         self.theme_cls.backgroundColor = '#0D1117'
-        return Builder.load_file('new_screen.kv')
+        screens = ['classes.kv', 'login.kv', 'rail_screen.kv', 'register.kv', 'menu_screen.kv', 'profile.kv',
+                   'add_task.kv', 'task_screen.kv', 'gpt.kv']
+        for screen in screens:
+            Builder.load_file(f'kivy/{screen}')
+        sm_one = ScreenManager(transition=NoTransition())
+        sm_one.add_widget(Login(name="login"))
+        sm_one.add_widget(AddTask(name="add_task"))
+        sm_one.add_widget(Register(name="register"))
+        sm_one.add_widget(RailScreen(name="rail_screen"))
+        return sm_one
 
-    def show_password(self): # показывает/скрывает пароль не полуилось реализовал
-        print(self.password.text)
 
-DemoApp().run()
+
+    def change_theme(self):  # ПОЧИНИТЬ
+        pass
+
+
+if __name__ == "__main__":
+    DemoApp().run()
