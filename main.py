@@ -24,6 +24,7 @@ from langchain.chat_models.gigachat import GigaChat
 import time
 
 
+
 Window.size = (800, 670)
 
 
@@ -149,17 +150,16 @@ class FieldText(MDTextField):
     color_up = ObjectProperty()
     value = ''
 
-    def check_text(self, text_color, bg_color):
+    def check_text(self):
         if self.value == '':
-            color = self.color_up
             self.value = self.hinter
         if self.hint_txt.text:
             self.hinter = ""
-            self.color_up = bg_color
+            self.color_up = '#0D1117'
             self.hint_txt.focus = False
             self.hint_txt.focus = True
         else:
-            self.color_up = self.text_color
+            self.color_up = 'white'
             self.hinter = self.value
             self.hint_txt.focus = False
             self.hint_txt.focus = True
@@ -193,6 +193,7 @@ class GPT(Screen):
         finally:
             self.ids.user.focus = True
             self.user_input.text = ''
+
 
 
 class CommonNavigationRailItem(MDNavigationRailItem):
