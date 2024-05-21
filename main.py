@@ -19,6 +19,9 @@ from kivymd.uix.list import MDListItemTrailingIcon
 import os
 from kivymd.uix.label import MDLabel
 from kivy.uix.screenmanager import NoTransition
+from langchain.schema import HumanMessage, SystemMessage
+from langchain.chat_models.gigachat import GigaChat
+import time
 
 
 Window.size = (800, 670)
@@ -146,16 +149,17 @@ class FieldText(MDTextField):
     color_up = ObjectProperty()
     value = ''
 
-    def check_text(self):
+    def check_text(self, text_color, bg_color):
         if self.value == '':
+            color = self.color_up
             self.value = self.hinter
         if self.hint_txt.text:
             self.hinter = ""
-            self.color_up = '#0D1117'
+            self.color_up = bg_color
             self.hint_txt.focus = False
             self.hint_txt.focus = True
         else:
-            self.color_up = 'white'
+            self.color_up = self.text_color
             self.hinter = self.value
             self.hint_txt.focus = False
             self.hint_txt.focus = True
@@ -167,14 +171,25 @@ class AddTask(Screen):
 
 class GPT(Screen):
     user_input = ObjectProperty()
-
+    dialog = []
+    # Токен
+    auth = "N2E3OWRiZDQtM2NlZi00OTQ2LTg2NmMtMjc3MzIwMDRjZDZjOjVmMzA5N2ZiLTAzNWUtNGJiYS05MjNmLWNjNGQzZWIxNWEwZA=="
+    giga = GigaChat(credentials=auth,
+                model='GigaChat:latest',
+                verify_ssl_certs=False
+                )
+    msgs = [SystemMessage(content='')]
+    
     def send(self):  # димас тебе доделать, еще нужно постоянную фокусировску сделатб
         try:
-            value = self.user_input.text
+            value = self.user_input.text # введеный текст
             if value != '':
                 self.ids.chat_list.add_widget(
-                    Command(text=value, size_hint_x=.2, halign='center'))  # Command ответ, Response = вопрос
-                self.ids.chat_list.add_widget(Response(text='Ответ', size_hint_x=.2, halign='center'))
+                    Command(text=value, size_hint_x=.2, halign='center'))  # Command вопрос, Response = ответ от гпт
+                self.msgs.append(HumanMessage(content=value))
+                answer = self.giga(self.msgs) # Ответ
+                self.msgs.append(answer)
+                self.ids.chat_list.add_widget(Response(text=answer.content, size_hint_x=.8, halign='center'))
         finally:
             self.ids.user.focus = True
             self.user_input.text = ''
