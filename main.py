@@ -10,6 +10,7 @@ import sqlite3
 from kivy.core.window import Window
 from kivymd.uix.expansionpanel import MDExpansionPanel
 from kivy.properties import ObjectProperty
+from kivy.properties import BooleanProperty
 from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
 from kivymd.uix.behaviors import RotateBehavior
 from kivy.uix.behaviors import ButtonBehavior
@@ -53,35 +54,37 @@ class AddTask(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.date_dialog_open = False
-        self.did_the_window_open = False
 
     def add_task(self):
-        if self.did_the_window_open:
+        if self.ids.date_picker.text != "":
             task_dl = self.ids.date_picker.text
         else:
-            task_dl = "not deadline"
+            task_dl = "no deadline"
+
+        task_id = db.create_task(user_id, self.new_task_name.text, self.new_task_description.text, task_dl)
+
         task_screen = self.manager.get_screen('tasks')
         task_screen.ids.tasks_.add_widget(ExpansionPanelItem(
             header_text=f"{self.new_task_name.text}",
             description=f"{self.new_task_description.text}",
-            support_text=f"{task_dl}"
+            support_text=f"{task_dl}",
+            task_id=str(task_id[0])
         ))
-        db.create_task(user_id, self.new_task_name.text, self.new_task_description.text, task_dl)
-        self.ids.date_picker.text = ''
+
         self.new_task_name.text = ''
         self.new_task_description.text = ''
+        self.ids.date_picker.text = ''
 
+    def add_to_favorite_task(task_id):
+        db.mark_task_as_important(user_id, task_id)
 
-
-
-    def add_to_favorite_task(self):
-        pass
+    def delete_from_favorite_task(task_id):
+        db.mark_task_as_unimportant(user_id, task_id)
 
     def show_date_picker(self, focus):
         self.did_the_window_open = True
         if not focus or self.date_dialog_open:
             return
-        self.date_dialog_open = True
 
         date_dialog = MDDockedDatePicker(min_date=datetime.date.today(), max_date=datetime.date(
             datetime.date.today().year + 10,
@@ -121,9 +124,13 @@ class MenuScreen(Screen):
             task_screen.ids.tasks_.add_widget(ExpansionPanelItem(
                 header_text=f"{i[1]}",
                 description=f"{i[2]}",
-                support_text=f"{i[3]}"
+                support_text=f"{i[3]}",
+                task_id=f"{i[0]}",
+                is_favorite=bool(i[4])
             ))
-            print(i[3])
+            print(i)
+    def delete(self):
+        pass
 
 
 class RailScreen(Screen):  # не меняет тему, при нажатии на кнопку появляется ошибка
@@ -288,12 +295,18 @@ class ExpansionPanelItem(MDExpansionPanel):
     header_text = StringProperty()
     support_text = StringProperty()
     description = StringProperty()
+    task_id = StringProperty()
+    is_favorite = BooleanProperty(False)
+
+    def on_kv_post(self, base_widget):
+        self.ids.heart_checkbox.state = 'down' if self.is_favorite else 'normal'
 
     def favorite_task_active(self, checkbox, state):
         if state == 'down':
-            print('Heart is filled')
+            AddTask.add_to_favorite_task(self.task_id)
         else:
-            print('Heart is unfilled')
+            AddTask.delete_from_favorite_task(self.task_id)
+        print(self.task_id)
 
     def tap_expansion_chevron(
             self, panel: MDExpansionPanel, chevron: TrailingPressedIconButton
@@ -308,6 +321,7 @@ class ExpansionPanelItem(MDExpansionPanel):
         panel.set_chevron_down(
             chevron
         ) if not panel.is_open else panel.set_chevron_up(chevron)
+
 
 
 class Command(MDLabel):
