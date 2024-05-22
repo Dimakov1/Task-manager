@@ -1,6 +1,5 @@
 <CommonNavigationRailItem>
 
-
     MDNavigationRailItemIcon:
         icon: root.icon
 
@@ -69,19 +68,22 @@
 
 
             MDCheckbox:
-                checkbox_icon_down: 'delete'
-                on_press:
-                    app.change_theme(1)
+                id: heart_checkbox
+                checkbox_icon_normal: 'heart-outline'
+                checkbox_icon_down: 'heart'
+                on_state: root.favorite_task_active(self, self.state)
+
+            MDCheckbox:
+                icon: "trash-can-outline"
 
             MDListItemLeadingIcon:
                 icon: "calendar"
 
-
-            MDListItemHeadlineText: #описание
+            MDListItemHeadlineText:
                 text: root.description
 
-            MDListItemSupportingText: #должен стоять дд
-                text: "kivydevelopment@gmail.com"
+            MDListItemSupportingText:
+                text: root.support_text
 
 <Command>
     size_hint_y: None
