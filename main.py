@@ -22,8 +22,8 @@ from kivymd.uix.label import MDLabel
 from kivy.uix.screenmanager import NoTransition
 from kivymd.uix.pickers import MDDockedDatePicker
 import datetime
-from langchain.schema import HumanMessage, SystemMessage
-from langchain.chat_models.gigachat import GigaChat
+#from langchain.schema import HumanMessage, SystemMessage
+#from langchain.chat_models.gigachat import GigaChat
 
 
 from database import Database
@@ -75,6 +75,8 @@ class AddTask(Screen):
 
         self.new_task_name.text = ''
         self.new_task_description.text = ''
+        self.date_dialog_open = True
+        self.ids.date_picker.focus = True
         self.ids.date_picker.text = ''
 
     def add_to_favorite_task(task_id):
@@ -84,9 +86,9 @@ class AddTask(Screen):
         db.mark_task_as_unimportant(user_id, task_id)
 
     def show_date_picker(self, focus):
-        self.did_the_window_open = True
         if not focus or self.date_dialog_open:
             return
+        self.date_dialog_open = True
 
         date_dialog = MDDockedDatePicker(min_date=datetime.date.today(), max_date=datetime.date(
             datetime.date.today().year + 10,
@@ -270,6 +272,8 @@ class FieldText(MDTextField):
 
 
 class GPT(Screen):
+    pass
+    """
     user_input = ObjectProperty()
     dialog = []
     # Токен
@@ -293,7 +297,7 @@ class GPT(Screen):
         finally:
             self.ids.user.focus = True
             self.user_input.text = ''
-
+"""
 
 
 class CommonNavigationRailItem(MDNavigationRailItem):
