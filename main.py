@@ -148,16 +148,16 @@ class FieldText(MDTextField):
     color_up = ObjectProperty()
     value = ''
 
-    def check_text(self):
+        def check_text(self, bg_color):
         if self.value == '':
             self.value = self.hinter
         if self.hint_txt.text:
             self.hinter = ""
-            self.color_up = '#0D1117'
+            self.color_up = bg_color
             self.hint_txt.focus = False
             self.hint_txt.focus = True
         else:
-            self.color_up = 'white'
+            self.color_up = self.text_color
             self.hinter = self.value
             self.hint_txt.focus = False
             self.hint_txt.focus = True
