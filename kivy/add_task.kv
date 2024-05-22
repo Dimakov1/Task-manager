@@ -1,5 +1,7 @@
 <AddTask>:
     name: 'add_task'
+    new_task_name: new_task_name
+    new_task_description: new_task_description
     MDScreen:
         md_bg_color: app.theme_cls.backgroundColor
         BoxLayout:
@@ -26,10 +28,26 @@
                 text_color: 'white'
                 icon: 'pen'
                 hint_text: 'Описание задачи'
+                on_text_validate: root.lol()
+                new_task_name: ''
+                new_task_description: ''
                 MDTextFieldMaxLengthText:
                     max_text_length: 60
                     text_color_normal: 'white'
                     text_color_focus: 'white'
+            FieldText:
+                id: date_picker
+                readonly: True
+                text_color: 'white'
+                hint_text: 'Выберите дату'
+                icon: 'calendar'
+                on_focus: root.show_date_picker(self.focus)
+                MDTextFieldHelperText:
+                    text_color_normal: 'white'
+                    text_color_focus: 'white'
+                    text: 'Укажите дедлайн'
+                    mode: 'persistent'
+
 
             BoxLayout:
                 orientation : 'horizontal'
@@ -39,7 +57,10 @@
                     theme_bg_color: "Custom"
                     md_bg_color: "green"
                     size_hint_x: None
-                    on_press: root.login_user()
+                    on_press:
+                        root.add_task()
+                        root.manager.current = "tasks"
+
                     MDButtonText:
                         text: '[b]ДОБАВИТЬ ЗАДАЧУ[/b]'
                     MDButtonIcon:
@@ -56,3 +77,4 @@
                     on_press: root.manager.current = 'rail_screen'
                     MDButtonText:
                         text: '[b]НАЗАД[/b]'
+

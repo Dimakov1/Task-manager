@@ -19,9 +19,111 @@ from kivymd.uix.list import MDListItemTrailingIcon
 import os
 from kivymd.uix.label import MDLabel
 from kivy.uix.screenmanager import NoTransition
+from kivymd.uix.pickers import MDDockedDatePicker
+import datetime
 
+
+from database import Database
+db = Database()
+
+
+from kivymd.uix.dialog import (
+    MDDialog,
+    MDDialogIcon,
+    MDDialogHeadlineText,
+    MDDialogSupportingText,
+    MDDialogButtonContainer,
+    MDDialogContentContainer,
+)
 
 Window.size = (800, 670)
+
+
+class TaskScreen(Screen):  # Создаем класс TaskScreen, наследующийся от Screen
+
+    def build(self):
+        self.theme_cls.primary_palette = "Green"
+        return Builder.load_file("add_task.kv")
+
+    def close_window(self):
+        self.manager.current = 'tasks'
+
+
+class AddTask(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.date_dialog_open = False
+        self.did_the_window_open = False
+
+    def add_task(self):
+        if self.did_the_window_open:
+            task_dl = self.ids.date_picker.text
+        else:
+            task_dl = "not deadline"
+        task_screen = self.manager.get_screen('tasks')
+        task_screen.ids.tasks_.add_widget(ExpansionPanelItem(
+            header_text=f"{self.new_task_name.text}",
+            description=f"{self.new_task_description.text}",
+            support_text=f"{task_dl}"
+        ))
+        db.create_task(user_id, self.new_task_name.text, self.new_task_description.text, task_dl)
+        self.ids.date_picker.text = ''
+        self.new_task_name.text = ''
+        self.new_task_description.text = ''
+
+
+
+
+    def add_to_favorite_task(self):
+        pass
+
+    def show_date_picker(self, focus):
+        self.did_the_window_open = True
+        if not focus or self.date_dialog_open:
+            return
+        self.date_dialog_open = True
+
+        date_dialog = MDDockedDatePicker(min_date=datetime.date.today(), max_date=datetime.date(
+            datetime.date.today().year + 10,
+            datetime.date.today().month,
+            datetime.date.today().day,
+        ))
+        date_dialog.pos = [
+            self.ids.date_picker.center_x - date_dialog.width / 2,
+            self.ids.date_picker.y - date_dialog.height / 2,
+        ]
+        date_dialog.bind(on_ok=self.on_ok, on_cancel=self.on_cancel, on_dismiss=self.on_dismiss)
+        date_dialog.open()
+
+    def on_ok(self, instance):
+        self.ids.date_picker.text = str(instance.get_date()[0])
+        global task_dl
+        task_dl = self.ids.date_picker.text
+        self.date_dialog_open = False
+        self.ids.date_picker.focus = False
+        instance.dismiss()
+
+    def on_cancel(self, instance):
+        self.did_the_window_open = False
+        self.date_dialog_open = False
+        instance.dismiss()
+
+    def on_dismiss(self, instance):
+        self.date_dialog_open = False
+     # ПОДКЛЮЧИТЬ БАЗУ ДАННЫХ ДЛЯ СОЗДАНИЯ НОВЫХ ТАСКОВ
+
+
+class MenuScreen(Screen):
+    def show(self):  # тут закидываем таски на экран TaskScreen
+        task_screen = self.manager.get_screen('tasks')
+        user_tasks = db.get_tasks(user_id)
+        for i in user_tasks[0]:
+            task_screen.ids.tasks_.add_widget(ExpansionPanelItem(
+                header_text=f"{i[1]}",
+                description=f"{i[2]}",
+                support_text=f"{i[3]}"
+            ))
+            print(i[3])
 
 
 class RailScreen(Screen):  # не меняет тему, при нажатии на кнопку появляется ошибка
@@ -38,14 +140,9 @@ class RailScreen(Screen):  # не меняет тему, при нажатии �
         self.drop_item_menu.open()
 
     # если хочешь обратиться к функции на данном экране, то нужно написать root.(назвние ф-ции)(self)
-    # некоторые ф-ции можно вызвать ток в MDApp, например change_them
-
-    def on_nav_item_pressed(self, instance, touch):
-        if instance.collide_point(*touch.pos):
-            if isinstance(instance, MDNavigationRailItem):
-                screen_name = instance.screen
-                self.manager_2.current = screen_name
-
+    # некоторые ф-ции можно вызвать ток в MDApp, например change_theme
+    def togpt(self):
+        pass
 
 
 class Screens(ScreenManager):
@@ -53,11 +150,11 @@ class Screens(ScreenManager):
 
 
 class ScreensSecond(ScreenManager):
-    pass
+    def choice(self, screen):
+        self.manager.current = screen
 
 
 class Login(Screen):  # включить функции по регистрации (бэк)
-
     def create_Bd():  # создаём БД
         global database
         global cursor
@@ -68,7 +165,8 @@ class Login(Screen):  # включить функции по регистрац�
 
         cursor.execute("""CREATE TABLE IF NOT EXISTS users(
             login TEXT,
-            password TEXT
+            password TEXT,
+            user_id INTEGER
         )""")
         database.commit()
 
@@ -78,8 +176,7 @@ class Login(Screen):  # включить функции по регистрац�
     def login_user(self):  # Проверка данных и вход
         if cursor.execute(f"SELECT login FROM users WHERE login = '{self.input_login.text}'").fetchone() is None:
             print("Такого пользователя не существует")
-        elif cursor.execute(f"SELECT login, password FROM users WHERE login = '{self.input_login.text}'").fetchone()[
-            1] != self.input_password.text:
+        elif cursor.execute(f"SELECT login, password FROM users WHERE login = '{self.input_login.text}'").fetchone()[1] != self.input_password.text:
             print("Неверный пароль")
         else:
             MDSnackbar(
@@ -93,6 +190,9 @@ class Login(Screen):  # включить функции по регистрац�
                 size_hint_x=0.5,
                 radius=[(20)] * 4
             ).open()
+            global user_id
+            user_id = int(cursor.execute(f"SELECT user_id FROM users WHERE login = '{self.input_login.text}'").fetchone()[0])
+            print(user_id)
             self.manager.current = 'rail_screen'
 
 
@@ -104,18 +204,24 @@ class Register(Screen):
 
     def register(self):  # проверка данных и запись в БД
         print(self.login_t.text, self.password_t.text, self.password_t2.text)
-        if len(self.login_t.text) <= 4:
-            print("Логин должен содержать более 4 символов")
-        elif len(self.password_t.text) <= 4:
-            print("Пароль должен содержать более 4 символов")
+        if len(self.login_t.text) <= 0:
+            print("Логин должен содержать более 4 символов") #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        elif len(self.password_t.text) <= 0:
+            print("Пароль должен содержать более 4 символов") #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         elif self.password_t.text != self.password_t2.text:
             print("Пароли не совпадают")
         elif cursor.execute(f"SELECT login FROM users WHERE login = '{self.login_t.text}'").fetchone() is not None:
             print("Такой пользователь уже существует")
         else:
-            cursor.execute(f"INSERT INTO users VALUES (?, ?)", (self.login_t.text, self.password_t.text))
+            global user_id
+            if cursor.execute('SELECT COUNT(*) FROM users').fetchone()[0] == 0:
+                id = 0
+            else:
+                id = int(cursor.execute("SELECT MAX(user_id) FROM users").fetchone()[0])
+            user_id = id + 1
+            cursor.execute(f"INSERT INTO users VALUES (?, ?, ?)", (self.login_t.text, self.password_t.text, user_id))
             database.commit()
-            print("всё гуд")
+            print("")
             # TextInput'ы очищаем и переходим на экран логина
             self.login_t.text, self.password_t.text, self.password_t2.text = '', '', ''
             self.manager.current = 'login'
@@ -127,15 +233,6 @@ class TrailingPressedIconButton(
     pass
 
 
-class MenuScreen(Screen):
-    def show(self):  # тут закидываем таски на экран TaskScreen
-        task_screen = self.manager.get_screen('tasks')
-        for i in range(10):
-            task_screen.ids.tasks_.add_widget(ExpansionPanelItem(
-
-                header_text=f"Задача {i}",
-                description=f"Описание задачи {i}"
-            ))
 
 
 class FieldText(MDTextField):
@@ -161,8 +258,6 @@ class FieldText(MDTextField):
             self.hint_txt.focus = True
 
 
-class AddTask(Screen):
-    pass  # ПОДКЛЮЧИТЬ БАЗУ ДАННЫХ ДЛЯ СОЗДАНИЯ НОВЫХ ТАСКОВ
 
 
 class GPT(Screen):
@@ -185,12 +280,7 @@ class CommonNavigationRailItem(MDNavigationRailItem):
     icon = StringProperty()
 
 
-
 class ProfileScreen(Screen):
-    pass
-
-
-class TaskScreen(Screen):
     pass
 
 
@@ -198,6 +288,12 @@ class ExpansionPanelItem(MDExpansionPanel):
     header_text = StringProperty()
     support_text = StringProperty()
     description = StringProperty()
+
+    def favorite_task_active(self, checkbox, state):
+        if state == 'down':
+            print('Heart is filled')
+        else:
+            print('Heart is unfilled')
 
     def tap_expansion_chevron(
             self, panel: MDExpansionPanel, chevron: TrailingPressedIconButton
@@ -233,23 +329,23 @@ class Response(MDLabel):
 class DemoApp(MDApp):
 
     def build(self):
+
         Login.create_Bd()
         self.theme_cls.backgroundColor = '#0D1117'
         screens = ['classes.kv', 'login.kv', 'rail_screen.kv', 'register.kv', 'menu_screen.kv', 'profile.kv',
                    'add_task.kv', 'task_screen.kv', 'gpt.kv']
         for screen in screens:
             Builder.load_file(f'kivy/{screen}')
+
         sm_one = ScreenManager(transition=NoTransition())
         sm_one.add_widget(Login(name="login"))
-        sm_one.add_widget(AddTask(name="add_task"))
         sm_one.add_widget(Register(name="register"))
         sm_one.add_widget(RailScreen(name="rail_screen"))
+        sm_one.add_widget(AddTask(name="add_task"))
+        sm_one.add_widget(MenuScreen(name="tasks"))
+
+
         return sm_one
-
-
-
-    def change_theme(self):  # ПОЧИНИТЬ
-        pass
 
 
 if __name__ == "__main__":
