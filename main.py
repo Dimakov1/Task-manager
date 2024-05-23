@@ -24,6 +24,10 @@ from kivymd.uix.pickers import MDDockedDatePicker
 import datetime
 #from langchain.schema import HumanMessage, SystemMessage
 #from langchain.chat_models.gigachat import GigaChat
+from kivy.uix.screenmanager import ScreenManager, NoTransition
+from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.widget import MDWidget
+
 
 
 from database import Database
@@ -52,6 +56,8 @@ class TaskScreen(Screen):  # Создаем класс TaskScreen, наслед�
         self.manager.current = 'tasks'
 
 
+
+
 class AddTask(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -66,7 +72,7 @@ class AddTask(Screen):
         task_id = db.create_task(user_id, self.new_task_name.text, self.new_task_description.text, task_dl)
 
         task_screen = self.manager.get_screen('tasks')
-        task_screen.ids.tasks_.add_widget(ExpansionPanelItem(
+        task_screen.ids.tasks.add_widget(ExpansionPanelItem(
             header_text=f"{self.new_task_name.text}",
             description=f"{self.new_task_description.text}",
             support_text=f"{task_dl}",
@@ -107,7 +113,6 @@ class AddTask(Screen):
         global task_dl
         task_dl = self.ids.date_picker.text
         self.date_dialog_open = False
-        self.ids.date_picker.focus = False
         instance.dismiss()
 
     def on_cancel(self, instance):
@@ -117,7 +122,21 @@ class AddTask(Screen):
 
     def on_dismiss(self, instance):
         self.date_dialog_open = False
-     # ПОДКЛЮЧИТЬ БАЗУ ДАННЫХ ДЛЯ СОЗДАНИЯ НОВЫХ ТАСКОВ
+
+
+class FavoriteTasks(Screen):
+    def show(self):
+        user_tasks = db.get_favorite_tasks(user_id)
+        self.manager.get_screen('favorite_tasks').ids.ftasks.clear_widgets()
+        for i in user_tasks:
+            self.manager.get_screen('favorite_tasks').ids.ftasks.add_widget(ExpansionPanelItem(
+                header_text=f"{i[1]}",
+                description=f"{i[2]}",
+                support_text=f"{i[3]}",
+                task_id=f"{i[0]}",
+                is_favorite=bool(i[4])
+            ))
+            print(f"Added favorite task: {str(i)}")
 
 
 class MenuScreen(Screen):
@@ -125,7 +144,7 @@ class MenuScreen(Screen):
         task_screen = self.manager.get_screen('tasks')
         user_tasks = db.get_tasks(user_id)
         for i in user_tasks[0]:
-            task_screen.ids.tasks_.add_widget(ExpansionPanelItem(
+            task_screen.ids.tasks.add_widget(ExpansionPanelItem(
                 header_text=f"{i[1]}",
                 description=f"{i[2]}",
                 support_text=f"{i[3]}",
@@ -137,8 +156,8 @@ class MenuScreen(Screen):
         pass
 
 
-class RailScreen(Screen):  # не меняет тему, при нажатии на кнопку появляется ошибка
-    def open_drop_item_menu(self, item):  # открывает меню
+class RailScreen(Screen):
+    def open_drop_item_menu(self, item):
         menu_items = [
             {
                 "text": "Сменить тему",
@@ -150,10 +169,26 @@ class RailScreen(Screen):  # не меняет тему, при нажатии �
         )
         self.drop_item_menu.open()
 
-    # если хочешь обратиться к функции на данном экране, то нужно написать root.(назвние ф-ции)(self)
-    # некоторые ф-ции можно вызвать ток в MDApp, например change_theme
     def togpt(self):
         pass
+
+    def show_favorite_tasks(self):
+        favorite_tasks_screen = self.manager.get_screen('rail_screen').ids.right_screen_manager
+        user_tasks = db.get_favorite_tasks(user_id)
+        favorite_tasks_screen.get_screen('favorite_tasks').ids.ftasks.clear_widgets()
+        for i in user_tasks:
+            favorite_tasks_screen.get_screen('favorite_tasks').ids.ftasks.add_widget(ExpansionPanelItem(
+                    header_text=f"{i[1]}",
+                    description=f"{i[2]}",
+                    support_text=f"{i[3]}",
+                    task_id=f"{i[0]}",
+                    is_favorite=bool(i[4])
+                ))
+
+
+
+
+
 
 
 class Screens(ScreenManager):
@@ -314,6 +349,7 @@ class ExpansionPanelItem(MDExpansionPanel):
     support_text = StringProperty()
     description = StringProperty()
     task_id = StringProperty()
+    dialog = None # Poka zaebal
     is_favorite = BooleanProperty(False)
 
     def on_kv_post(self, base_widget):
@@ -340,6 +376,44 @@ class ExpansionPanelItem(MDExpansionPanel):
             chevron
         ) if not panel.is_open else panel.set_chevron_up(chevron)
 
+    def for_delete(self):
+        if not self.dialog:
+            self.dialog = MDDialog(
+                # -----------------------Headline text-------------------------
+                MDDialogHeadlineText(
+                    text="Вы точно уверены, что хотите удалить задачу?"),
+                MDDialogSupportingText(
+                    text='Отменить изменения будет нельзя'
+                ),
+                MDDialogButtonContainer(
+                    MDButton(
+                        MDButtonText(text="Отмена"),
+                        style="text",
+                        ripple_effect=False,
+                        on_press=self.close_dialog
+                    ),
+                    MDWidget(theme_focus_color='Custom', ),
+                    MDButton(
+                        MDButtonText(text="Подтвердить"),
+                        ripple_effect=False,
+                        style="text",
+                        on_press=self.delete_task
+                        #допилить функция для удаления
+                    ),
+                    spacing="8dp",
+                ),
+            )
+            self.dialog.open()
+
+    def close_dialog(self, instance):
+        if self.dialog:
+            self.dialog.dismiss()
+            self.dialog = None
+
+    def delete_task(self, instance):
+        self.close_dialog(self)
+        print(";asasa")
+
 
 
 class Command(MDLabel):
@@ -359,13 +433,11 @@ class Response(MDLabel):
 
 
 class DemoApp(MDApp):
-
     def build(self):
-
         Login.create_Bd()
         self.theme_cls.backgroundColor = '#0D1117'
         screens = ['classes.kv', 'login.kv', 'rail_screen.kv', 'register.kv', 'menu_screen.kv', 'profile.kv',
-                   'add_task.kv', 'task_screen.kv', 'gpt.kv']
+                   'add_task.kv', 'task_screen.kv', 'gpt.kv', 'favorite_tasks.kv']
         for screen in screens:
             Builder.load_file(f'kivy/{screen}')
 
@@ -375,7 +447,6 @@ class DemoApp(MDApp):
         sm_one.add_widget(RailScreen(name="rail_screen"))
         sm_one.add_widget(AddTask(name="add_task"))
         sm_one.add_widget(MenuScreen(name="tasks"))
-
 
         return sm_one
 

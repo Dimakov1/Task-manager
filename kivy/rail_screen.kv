@@ -1,4 +1,4 @@
-#: import NoTransition kivy.uix.screenmanager.NoTransition
+#:import NoTransition kivy.uix.screenmanager.NoTransition
 
 <RailScreen>:
     name: 'rail_screen'
@@ -16,7 +16,8 @@
                 radius: (24)*4
                 text: "Важные"
                 on_release:
-                    right_screen_manager.current = 'menu_screen'
+                    right_screen_manager.current = 'favorite_tasks'
+                    root.show_favorite_tasks()
 
             CommonNavigationRailItem:
                 icon: "bookmark"
@@ -34,8 +35,7 @@
                 icon: "account"
                 radius: (24)*4
                 text: "Аккаунт"
-                on_release:
-                    right_screen_manager.current = 'tasks'
+
 
             CommonNavigationRailItem:
                 icon: "plus-box"
@@ -43,7 +43,7 @@
                 theme_text_color: "Custom"
                 text_color: 'green'
                 on_release:
-                    right_screen_manager.current = 'add_task'
+                    right_screen_manager.current = 'tasks'
 
         ScreenManager:
             id: right_screen_manager
@@ -63,3 +63,6 @@
 
             AddTask:
                 name: 'add_task'
+
+            FavoriteTasks:
+                name: 'favorite_tasks'

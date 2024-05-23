@@ -38,6 +38,17 @@ class Database:
             print(f"An error occurred: {e}")
             return None, None
 
+    def get_favorite_tasks(self, user_id):
+        try:
+            favorite_tasks = self.cursor.execute("SELECT id, name, description, due_date, important FROM tasks WHERE user_id = ? AND important = 1", (user_id,)).fetchall()
+
+            return favorite_tasks
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e}")
+            return None, None
+
+
+
     def mark_task_as_complete(self, user_id, taskid):
         try:
             self.cursor.execute("UPDATE tasks SET completed = 1 WHERE id = ? AND user_id = ?", (taskid, user_id))

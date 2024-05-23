@@ -73,8 +73,10 @@
                 checkbox_icon_down: 'heart'
                 on_state: root.favorite_task_active(self, self.state)
 
-                MDListItemTrailingIcon:
-                    icon: "trash-can-outline"
+            MDIconButton:
+                icon: 'trash-can-outline'
+                ripple_effect: False
+                on_press: root.for_delete()
 
             MDListItemLeadingIcon:
                 icon: "calendar"
