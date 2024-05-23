@@ -25,9 +25,8 @@ import datetime
 from langchain.schema import HumanMessage, SystemMessage
 from langchain.chat_models.gigachat import GigaChat
 from kivy.uix.screenmanager import ScreenManager, NoTransition
-from kivymd.uix.button import MDButton, MDButtonText, MDIconButton
+from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.widget import MDWidget
-from kivymd.uix.boxlayout import MDBoxLayout
 
 from database import Database
 
@@ -83,6 +82,7 @@ class AddTask(Screen):
         self.ids.date_picker.focus = False
         self.ids.date_picker.text = ''
         self.date_dialog_open = False
+        self.end = 0
 
     def add_to_favorite_task(task_id):
         db.mark_task_as_important(user_id, task_id)
@@ -91,7 +91,8 @@ class AddTask(Screen):
         db.mark_task_as_unimportant(user_id, task_id)
 
     def show_date_picker(self):
-        if self.date_dialog_open:
+        self.end = 0
+        if self.date_dialog_open or self.end:
             return
         self.date_dialog_open = True
 
@@ -138,9 +139,23 @@ class FavoriteTasks(Screen):
             ))
             print(f"Added favorite task: {str(i)}")
 
+    def delete_from_favorite(self):
+        pass
+
 
 class MenuScreen(Screen):
-    pass
+    def show(self):  # тут закидываем таски на экран TaskScreen
+        task_screen = self.manager.get_screen('tasks')
+        user_tasks = db.get_tasks(user_id)
+        for i in user_tasks[0]:
+            task_screen.ids.tasks.add_widget(ExpansionPanelItem(
+                header_text=f"{i[1]}",
+                description=f"{i[2]}",
+                support_text=f"{i[3]}",
+                task_id=f"{i[0]}",
+                is_favorite=bool(i[4])
+            ))
+            print(i)
 
     def delete(self):
         pass
@@ -174,6 +189,20 @@ class RailScreen(Screen):
                 task_id=f"{i[0]}",
                 is_favorite=bool(i[4])
             ))
+
+    def show_all_tasks(self):  # тут закидываем таски на экран TaskScreen
+        task_screen = self.manager.get_screen('rail_screen').ids.right_screen_manager
+        user_tasks = db.get_tasks(user_id)
+        task_screen.get_screen('tasks').ids.tasks.clear_widgets()
+        for i in user_tasks[0]:
+            task_screen.get_screen('tasks').ids.tasks.add_widget(ExpansionPanelItem(
+                header_text=f"{i[1]}",
+                description=f"{i[2]}",
+                support_text=f"{i[3]}",
+                task_id=f"{i[0]}",
+                is_favorite=bool(i[4])
+            ))
+            print(i)
 
 
 class Screens(ScreenManager):
@@ -312,16 +341,11 @@ class GPT(Screen):
             value = self.user_input.text  # введеный текст
             if value != '':
                 self.ids.chat_list.add_widget(
-                    Command(text=value, size_hint_x=.5, halign='center'))  # Command вопрос, Response = ответ от гпт
+                    Command(text=value, size_hint_x=.2, halign='center'))  # Command вопрос, Response = ответ от гпт
                 self.msgs.append(HumanMessage(content=value))
                 answer = self.giga(self.msgs)  # Ответ
                 self.msgs.append(answer)
                 self.ids.chat_list.add_widget(Response(text=answer.content, size_hint_x=.8, halign='left'))
-                self.ids.chat_list.add_widget(
-                    MDBoxLayout(MDIconButton(icon='pencil'), MDIconButton(icon='paper'), spacing=10,
-                                orientation='horizontal', size = (200, 100),
-                                pos_hint={'center_x': .5, 'y': dp(1000)}, size_hint_y=None)) # доделать
-
         finally:
             self.ids.user.focus = True
             self.user_input.text = ''
@@ -356,51 +380,52 @@ class ExpansionPanelItem(MDExpansionPanel):
 
     def changer(self):
         if self.dialog == None:
-            self.dialog = MDDialog(
-                # -----------------------Headline text-------------------------
-                MDDialogHeadlineText(
-                    text="Изменение задачи?"),
-                MDDialogContentContainer(
-                    MDTextField(
-                        text=self.header_text,
-                        id='header',
-                        # on_disabled=(self.new_hed =self.text)
-
-                    ),
-                    MDTextField(
-
-                        text=self.description,
-                        id='desc'
-                        # on_disabled=(self.new_des =self.text)
-
-                    ),
-                    MDTextField(
-                        text=self.support_text,
-                        # on_disabled=lambda x (self.new_sup =self.text)
-                        # on_focus = AddTask.show_date_picker(self)
-                    ),
-                    spacing="15dp", orientation="vertical",
-                ), MDDialogButtonContainer(
-                    MDButton(
-                        MDButtonText(text="Отмена"),
-                        style="text",
-
-                        ripple_effect=False,
-                        on_press=self.close_dialog
-                    ),
-                    MDWidget(),
-                    MDButton(
-                        MDButtonText(text="Подтвердить изменения"),
-                        ripple_effect=False,
-                        style="text",
-                        # допилить функция для подтверждения редактирования
-                    )),
-                auto_dismiss=False,
+            self.header_text_field = MDTextField(
+                text=self.header_text
             )
-            self.dialog.open()
+        self.description_text_field = MDTextField(
+            text=self.description,
+            size=('20sp', '20sp')
+        )
+        self.support_text_field = MDTextField(
+            text=self.support_text,
+            # on_focus=AddTask.show_date_picker(self)
+        )
 
-    # автозаполнение всех полей от предыдущей задачи
-    # если задача создается - старая удаляется, которое мы редактировали
+        self.dialog = MDDialog(
+            # -----------------------Headline text-------------------------
+            MDDialogHeadlineText(
+                text="Изменение задачи"),
+            MDDialogContentContainer(
+                self.header_text_field,
+                self.description_text_field,
+                self.support_text_field,
+                spacing="15dp", orientation="vertical",
+            ), MDDialogButtonContainer(
+                MDButton(
+                    MDButtonText(text="Отмена"),
+                    style="text",
+                    ripple_effect=False,
+                    on_press=self.close_dialog
+                ),
+                MDWidget(),
+                MDButton(
+                    MDButtonText(text="Подтвердить изменения"),
+                    ripple_effect=False,
+                    style="text",
+                    on_press=self.change_task
+                )),
+            auto_dismiss=False,
+        )
+        self.dialog.open()
+
+    def change_task(self, instance):
+        print(self.header_text_field.text, self.description_text_field.text, self.support_text_field.text)
+        db.update_task_details(user_id, self.task_id, self.header_text_field.text, self.description_text_field.text, self.support_text_field.text)
+
+        #Здесь надо подшаманить, чтобы обновлялся экран тасков
+
+        self.close_dialog(self)
 
     def tap_expansion_chevron(
             self, panel: MDExpansionPanel, chevron: TrailingPressedIconButton
@@ -451,6 +476,8 @@ class ExpansionPanelItem(MDExpansionPanel):
             self.dialog = None
 
     def delete_task(self, instance):  # должна удалять таск из бд и из экрана
+        db.delete_task(user_id, self.task_id)
+        self.parent.remove_widget(self)
         self.close_dialog(self)
         print(";asasa")
 
