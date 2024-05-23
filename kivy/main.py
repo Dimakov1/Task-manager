@@ -27,12 +27,14 @@ from langchain.chat_models.gigachat import GigaChat
 from kivy.uix.screenmanager import ScreenManager, NoTransition
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.widget import MDWidget
-
-
+from kivy.uix.boxlayout import BoxLayout
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.button import MDButton
+from kivymd.uix.textfield import MDTextField
 
 from database import Database
-db = Database()
 
+db = Database()
 
 from kivymd.uix.dialog import (
     MDDialog,
@@ -54,8 +56,6 @@ class TaskScreen(Screen):  # Создаем класс TaskScreen, наслед�
 
     def close_window(self):
         self.manager.current = 'tasks'
-
-
 
 
 class AddTask(Screen):
@@ -142,9 +142,6 @@ class FavoriteTasks(Screen):
                 is_favorite=bool(i[4])
             ))
             print(f"Added favorite task: {str(i)}")
-    def delete_from_favorite(self):
-        pass
-
 
 
 class MenuScreen(Screen):
@@ -187,28 +184,12 @@ class RailScreen(Screen):
         favorite_tasks_screen.get_screen('favorite_tasks').ids.ftasks.clear_widgets()
         for i in user_tasks:
             favorite_tasks_screen.get_screen('favorite_tasks').ids.ftasks.add_widget(ExpansionPanelItem(
-                    header_text=f"{i[1]}",
-                    description=f"{i[2]}",
-                    support_text=f"{i[3]}",
-                    task_id=f"{i[0]}",
-                    is_favorite=bool(i[4])
-                ))
-
-    def show_all_tasks(self):  # тут закидываем таски на экран TaskScreen
-        task_screen = self.manager.get_screen('rail_screen').ids.right_screen_manager
-        user_tasks = db.get_tasks(user_id)
-        task_screen.get_screen('tasks').ids.tasks.clear_widgets()
-        for i in user_tasks[0]:
-            task_screen.get_screen('tasks').ids.tasks.add_widget(ExpansionPanelItem(
                 header_text=f"{i[1]}",
                 description=f"{i[2]}",
                 support_text=f"{i[3]}",
                 task_id=f"{i[0]}",
                 is_favorite=bool(i[4])
             ))
-            print(i)
-
-
 
 
 class Screens(ScreenManager):
@@ -242,7 +223,8 @@ class Login(Screen):  # включить функции по регистрац�
     def login_user(self):  # Проверка данных и вход
         if cursor.execute(f"SELECT login FROM users WHERE login = '{self.input_login.text}'").fetchone() is None:
             print("Такого пользователя не существует")
-        elif cursor.execute(f"SELECT login, password FROM users WHERE login = '{self.input_login.text}'").fetchone()[1] != self.input_password.text:
+        elif cursor.execute(f"SELECT login, password FROM users WHERE login = '{self.input_login.text}'").fetchone()[
+            1] != self.input_password.text:
             print("Неверный пароль")
         else:
             MDSnackbar(
@@ -257,7 +239,8 @@ class Login(Screen):  # включить функции по регистрац�
                 radius=[(20)] * 4
             ).open()
             global user_id
-            user_id = int(cursor.execute(f"SELECT user_id FROM users WHERE login = '{self.input_login.text}'").fetchone()[0])
+            user_id = int(
+                cursor.execute(f"SELECT user_id FROM users WHERE login = '{self.input_login.text}'").fetchone()[0])
             print(user_id)
             self.manager.current = 'rail_screen'
 
@@ -271,9 +254,10 @@ class Register(Screen):
     def register(self):  # проверка данных и запись в БД
         print(self.login_t.text, self.password_t.text, self.password_t2.text)
         if len(self.login_t.text) <= 0:
-            print("Логин должен содержать более 4 символов") #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            print("Логин должен содержать более 4 символов")  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         elif len(self.password_t.text) <= 0:
-            print("Пароль должен содержать более 4 символов") #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            print(
+                "Пароль должен содержать более 4 символов")  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         elif self.password_t.text != self.password_t2.text:
             print("Пароли не совпадают")
         elif cursor.execute(f"SELECT login FROM users WHERE login = '{self.login_t.text}'").fetchone() is not None:
@@ -299,8 +283,6 @@ class TrailingPressedIconButton(
     pass
 
 
-
-
 class FieldText(MDTextField):
     text_color = ObjectProperty()
     icon = StringProperty()
@@ -310,7 +292,7 @@ class FieldText(MDTextField):
     value = ''
     dater = ObjectProperty()
 
-    def check_text(self, bg_color, dater = 0):
+    def check_text(self, bg_color, dater=0):
         if self.value == '':
             self.value = self.hinter
         if self.hint_txt.text:
@@ -330,34 +312,30 @@ class FieldText(MDTextField):
             self.hint_txt.focus = True
 
 
-
-
 class GPT(Screen):
-
     user_input = ObjectProperty()
     dialog = []
     # Токен
     auth = "N2E3OWRiZDQtM2NlZi00OTQ2LTg2NmMtMjc3MzIwMDRjZDZjOjVmMzA5N2ZiLTAzNWUtNGJiYS05MjNmLWNjNGQzZWIxNWEwZA=="
     giga = GigaChat(credentials=auth,
-                model='GigaChat:latest',
-                verify_ssl_certs=False
-                )
+                    model='GigaChat:latest',
+                    verify_ssl_certs=False
+                    )
     msgs = [SystemMessage(content='')]
-    
+
     def send(self):  # димас тебе доделать, еще нужно постоянную фокусировску сделатб
         try:
-            value = self.user_input.text # введеный текст
+            value = self.user_input.text  # введеный текст
             if value != '':
                 self.ids.chat_list.add_widget(
                     Command(text=value, size_hint_x=.2, halign='center'))  # Command вопрос, Response = ответ от гпт
                 self.msgs.append(HumanMessage(content=value))
-                answer = self.giga(self.msgs) # Ответ
+                answer = self.giga(self.msgs)  # Ответ
                 self.msgs.append(answer)
                 self.ids.chat_list.add_widget(Response(text=answer.content, size_hint_x=.8, halign='left'))
         finally:
             self.ids.user.focus = True
             self.user_input.text = ''
-
 
 
 class CommonNavigationRailItem(MDNavigationRailItem):
@@ -369,12 +347,21 @@ class ProfileScreen(Screen):
     pass
 
 
+class DialogContent(MDDialog):
+    header_text_field = ObjectProperty()
+    description_text_field = ObjectProperty()
+    support_text_field = ObjectProperty()
+    header_text = StringProperty()
+    description = StringProperty()
+    support_text = StringProperty()
+
+
 class ExpansionPanelItem(MDExpansionPanel):
     header_text = StringProperty()
     support_text = StringProperty()
     description = StringProperty()
     task_id = StringProperty()
-    dialog = None # Poka zaebal
+    dialog = None  # poka
     is_favorite = BooleanProperty(False)
 
     def on_kv_post(self, base_widget):
@@ -392,7 +379,7 @@ class ExpansionPanelItem(MDExpansionPanel):
             self.dialog = MDDialog(
                 # -----------------------Headline text-------------------------
                 MDDialogHeadlineText(
-                    text="Изменение задачи"),
+                    text="Изменение задачи?"),
                 MDDialogContentContainer(
                     MDTextField(
                         text=self.header_text,
@@ -421,15 +408,14 @@ class ExpansionPanelItem(MDExpansionPanel):
                         ripple_effect=False,
                         style="text",
                         on_press=self.change_task
+                        # допилить функция для подтверждения редактирования
                     )),
                 auto_dismiss=False,
             )
             self.dialog.open()
-        print(self.header_text)
+            print(self.header_text)
 
     def change_task(self, instance):
-        #db.change_task(user_id, self.task_id, )
-
         self.close_dialog(self)
 
     def tap_expansion_chevron(
@@ -468,7 +454,6 @@ class ExpansionPanelItem(MDExpansionPanel):
                         ripple_effect=False,
                         style="text",
                         on_press=self.delete_task
-                        #допилить функция для удаления
                     ),
                     spacing="8dp",
                 ), auto_dismiss=False
@@ -480,14 +465,12 @@ class ExpansionPanelItem(MDExpansionPanel):
             self.dialog.dismiss()
             self.dialog = None
 
-    def delete_task(self, instance): # должна удалять таск из бд и из экрана
+    def delete_task(self, instance):  # должна удалять таск из бд и из экрана
         db.delete_task(user_id, self.task_id)
-        self.parent.remove_widget(self)
+        if self.parent:
+            self.parent.remove_widget(self)
         self.close_dialog(self)
         print(";asasa")
-
-
-
 
 
 class Command(MDLabel):

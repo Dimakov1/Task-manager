@@ -49,12 +49,25 @@ class Database:
 
 
 
-    def mark_task_as_complete(self, user_id, taskid):
+    def change_task(self, user_id, taskid, ):
         try:
             self.cursor.execute("UPDATE tasks SET completed = 1 WHERE id = ? AND user_id = ?", (taskid, user_id))
             self.con.commit()
         except sqlite3.Error as e:
             print(f"An error occurred: {e}")
+
+
+    def update_task_details(self, user_id, task_id, new_name, new_description, new_date):
+        try:
+            self.cursor.execute("""
+                UPDATE tasks
+                SET name = ?, description = ?, date = ?
+                WHERE id = ? AND user_id = ?
+            """, (new_name, new_description, new_date, task_id, user_id))
+            self.con.commit()
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e}")
+
 
     def mark_task_as_incomplete(self, user_id, taskid):
         try:
@@ -66,21 +79,6 @@ class Database:
             print(f"An error occurred: {e}")
             return None
 
-    def change_task(self, user_id, task_id, tname, tdescription):
-        try:
-            self.cursor.execute(
-                "UPDATE tasks SET name = ?, description = ? WHERE id = ? AND user_id = ?",
-                (tname, tdescription, task_id, user_id)
-            )
-            self.con.commit()
-            task_text = self.cursor.execute(
-                "SELECT name, description, due_date FROM tasks WHERE id = ? AND user_id = ?",
-                (task_id, user_id)
-            ).fetchone()
-            return task_text
-        except sqlite3.Error as e:
-            print(f"An error occurred: {e}")
-            return None
 
     def mark_task_as_important(self, user_id, taskid):
         try:
