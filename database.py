@@ -47,14 +47,19 @@ class Database:
             print(f"An error occurred: {e}")
             return None, None
 
-
-
-    def mark_task_as_complete(self, user_id, taskid):
+    def update_task_details(self, user_id, task_id, new_name, new_description, new_date):
         try:
-            self.cursor.execute("UPDATE tasks SET completed = 1 WHERE id = ? AND user_id = ?", (taskid, user_id))
+            self.cursor.execute("""
+                UPDATE tasks
+                SET name = ?, description = ?, due_date = ?
+                WHERE id = ? AND user_id = ?
+            """, (new_name, new_description, new_date, task_id, user_id))
             self.con.commit()
         except sqlite3.Error as e:
             print(f"An error occurred: {e}")
+
+
+
 
     def mark_task_as_incomplete(self, user_id, taskid):
         try:
