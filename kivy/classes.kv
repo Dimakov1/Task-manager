@@ -1,5 +1,7 @@
 <CommonNavigationRailItem>
 
+
+
     MDNavigationRailItemIcon:
         icon: root.icon
 
@@ -13,7 +15,7 @@
     text_color_normal: root.text_color
     text_color_focus: root.text_color
     radius: [dp(19)]
-    on_text: root.check_text()
+    on_text: root.check_text(root.md_bg_color, root.dater)
 
     MDTextFieldTrailingIcon:
         more_icon : root.more_icon
@@ -30,7 +32,6 @@
         text_color_normal: root.color_up
         text_color_focus: root.color_up
 
-
 <ExpansionPanelItem>:
 
     MDExpansionPanelHeader:
@@ -42,6 +43,13 @@
 
             MDListItemSupportingText:
                 text: root.header_text
+
+            MDIconButton:
+                icon: 'pencil'
+                ripple_effect: False
+                theme_icon_color: "Custom"
+                icon_color: "black"
+                on_press: root.changer()
 
             TrailingPressedIconButton:
                 id: chevron
@@ -72,6 +80,7 @@
                 checkbox_icon_normal: 'heart-outline'
                 checkbox_icon_down: 'heart'
                 on_state: root.favorite_task_active(self, self.state)
+                pos_hint:{'center_x': 0, 'center_y': .37}
 
             MDIconButton:
                 icon: 'trash-can-outline'
@@ -109,10 +118,3 @@
     padding: 12, 10
     theme_text_color: "Custom"
     text_color: 1, 1, 1, 1
-    canvas.before:
-        Color:
-            rgb: (1, 170/255, 23/255, 1)
-        RoundedRectangle:
-            size: self.width, self.height
-            pos: self.pos
-            radius: [23, 23, 23, 23]

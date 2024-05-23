@@ -22,8 +22,8 @@ from kivymd.uix.label import MDLabel
 from kivy.uix.screenmanager import NoTransition
 from kivymd.uix.pickers import MDDockedDatePicker
 import datetime
-#from langchain.schema import HumanMessage, SystemMessage
-#from langchain.chat_models.gigachat import GigaChat
+from langchain.schema import HumanMessage, SystemMessage
+from langchain.chat_models.gigachat import GigaChat
 from kivy.uix.screenmanager import ScreenManager, NoTransition
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.widget import MDWidget
@@ -64,6 +64,7 @@ class AddTask(Screen):
         self.date_dialog_open = False
 
     def add_task(self):
+        self.date_dialog_open = True
         if self.ids.date_picker.text != "":
             task_dl = self.ids.date_picker.text
         else:
@@ -81,9 +82,11 @@ class AddTask(Screen):
 
         self.new_task_name.text = ''
         self.new_task_description.text = ''
-        self.date_dialog_open = True
         self.ids.date_picker.focus = True
+        self.ids.date_picker.focus = False
         self.ids.date_picker.text = ''
+        self.date_dialog_open = False
+        self.end = 0
 
     def add_to_favorite_task(task_id):
         db.mark_task_as_important(user_id, task_id)
@@ -91,8 +94,9 @@ class AddTask(Screen):
     def delete_from_favorite_task(task_id):
         db.mark_task_as_unimportant(user_id, task_id)
 
-    def show_date_picker(self, focus):
-        if not focus or self.date_dialog_open:
+    def show_date_picker(self):
+        self.end = 0
+        if self.date_dialog_open or self.end:
             return
         self.date_dialog_open = True
 
@@ -112,15 +116,16 @@ class AddTask(Screen):
         self.ids.date_picker.text = str(instance.get_date()[0])
         global task_dl
         task_dl = self.ids.date_picker.text
-        self.date_dialog_open = False
+
         instance.dismiss()
 
     def on_cancel(self, instance):
-        self.did_the_window_open = False
         self.date_dialog_open = False
+        self.ids.date_picker.focus = False
         instance.dismiss()
 
     def on_dismiss(self, instance):
+        self.ids.date_picker.focus = False
         self.date_dialog_open = False
 
 
@@ -288,17 +293,23 @@ class FieldText(MDTextField):
     more_icon = StringProperty()
     color_up = ObjectProperty()
     value = ''
+    dater = ObjectProperty()
 
-    def check_text(self):
+    def check_text(self, bg_color, dater = 0):
         if self.value == '':
             self.value = self.hinter
         if self.hint_txt.text:
             self.hinter = ""
-            self.color_up = '#0D1117'
+            self.color_up = bg_color
             self.hint_txt.focus = False
             self.hint_txt.focus = True
         else:
-            self.color_up = 'white'
+            if dater:
+                self.color_up = self.text_color
+                self.hinter = self.value
+                self.hint_txt.focus = False
+                return
+            self.color_up = self.text_color
             self.hinter = self.value
             self.hint_txt.focus = False
             self.hint_txt.focus = True
@@ -307,8 +318,7 @@ class FieldText(MDTextField):
 
 
 class GPT(Screen):
-    pass
-    """
+
     user_input = ObjectProperty()
     dialog = []
     # Токен
@@ -328,11 +338,11 @@ class GPT(Screen):
                 self.msgs.append(HumanMessage(content=value))
                 answer = self.giga(self.msgs) # Ответ
                 self.msgs.append(answer)
-                self.ids.chat_list.add_widget(Response(text=answer.content, size_hint_x=.8, halign='center'))
+                self.ids.chat_list.add_widget(Response(text=answer.content, size_hint_x=.8, halign='left'))
         finally:
             self.ids.user.focus = True
             self.user_input.text = ''
-"""
+
 
 
 class CommonNavigationRailItem(MDNavigationRailItem):
@@ -362,6 +372,10 @@ class ExpansionPanelItem(MDExpansionPanel):
             AddTask.delete_from_favorite_task(self.task_id)
         print(self.task_id)
 
+    def changer(self):
+        print(1)#нужно, чтобы менялся экран на Add_Task, автозаполнение всех полей от предыдущей задачи
+ # если задача создается - старая удаляется, которое мы редактировали
+
     def tap_expansion_chevron(
             self, panel: MDExpansionPanel, chevron: TrailingPressedIconButton
     ):
@@ -377,7 +391,7 @@ class ExpansionPanelItem(MDExpansionPanel):
         ) if not panel.is_open else panel.set_chevron_up(chevron)
 
     def for_delete(self):
-        if not self.dialog:
+        if self.dialog == None:
             self.dialog = MDDialog(
                 # -----------------------Headline text-------------------------
                 MDDialogHeadlineText(
@@ -401,7 +415,7 @@ class ExpansionPanelItem(MDExpansionPanel):
                         #допилить функция для удаления
                     ),
                     spacing="8dp",
-                ),
+                ), auto_dismiss=False
             )
             self.dialog.open()
 
@@ -410,7 +424,7 @@ class ExpansionPanelItem(MDExpansionPanel):
             self.dialog.dismiss()
             self.dialog = None
 
-    def delete_task(self, instance):
+    def delete_task(self, instance): # должна удалять таск из бд и из экрана
         self.close_dialog(self)
         print(";asasa")
 

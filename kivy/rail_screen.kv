@@ -2,7 +2,7 @@
 
 <RailScreen>:
     name: 'rail_screen'
-    BoxLayout:
+    MDBoxLayout:
         orientation: 'horizontal'
 
         # Левая панель с навигацией
@@ -10,6 +10,7 @@
             md_bg_color: app.theme_cls.backgroundColor
             elevation: 1
             type: "unselected"
+            current_selected_item: 0
 
             CommonNavigationRailItem:
                 icon: "alert-circle"
@@ -29,7 +30,7 @@
             CommonNavigationRailItem:
                 icon: "robot"
                 radius: (24)*4
-                on_active: root.togpt()
+                on_release: right_screen_manager.current = 'gpt_screen'
 
             CommonNavigationRailItem:
                 icon: "account"

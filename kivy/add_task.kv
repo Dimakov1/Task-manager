@@ -20,14 +20,16 @@
             FieldText:
                 id: new_task_name
                 text_color: 'white'
+                color_up: 'white'
                 icon: 'pin'
-                hint_text: 'Название задачи'
+                hinter: 'Название задачи'
 
             FieldText:
                 id: new_task_description
                 text_color: 'white'
+                color_up: 'white'
                 icon: 'pen'
-                hint_text: 'Описание задачи'
+                hinter: 'Описание задачи'
                 on_text_validate: root.lol()
                 new_task_name: ''
                 new_task_description: ''
@@ -39,9 +41,11 @@
                 id: date_picker
                 readonly: True
                 text_color: 'white'
-                hint_text: 'Выберите дату'
+                color_up: 'white'
+                hinter: 'Выберите дату'
                 icon: 'calendar'
-                on_focus: root.show_date_picker(self.focus)
+                dater: 1
+                on_focus: root.show_date_picker()
                 MDTextFieldHelperText:
                     text_color_normal: 'white'
                     text_color_focus: 'white'
