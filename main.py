@@ -316,10 +316,12 @@ class GPT(Screen):
                 self.msgs.append(HumanMessage(content=value))
                 answer = self.giga(self.msgs)  # Ответ
                 self.msgs.append(answer)
-                self.ids.chat_list.add_widget(Response(text=answer.content, size_hint_x=.8, halign='left', id='lol'))
+                self.ids.chat_list.add_widget(Response(text=answer.content, size_hint_x=.8, halign='left'))
                 self.ids.chat_list.add_widget(
-                    MDBoxLayout(MDIconButton(icon='pencil'), MDIconButton(icon='heart'), spacing=10,
-                                pos_hint={'center_x': .9, 'y': 0}))
+                    MDBoxLayout(MDIconButton(icon='pencil'), MDIconButton(icon='paper'), spacing=10,
+                                orientation='horizontal', size = (200, 100),
+                                pos_hint={'center_x': .5, 'y': dp(1000)}, size_hint_y=None)) # доделать
+
         finally:
             self.ids.user.focus = True
             self.user_input.text = ''
@@ -361,18 +363,20 @@ class ExpansionPanelItem(MDExpansionPanel):
                 MDDialogContentContainer(
                     MDTextField(
                         text=self.header_text,
-                        #on_disabled=(self.new_hed =self.text)
+                        id='header',
+                        # on_disabled=(self.new_hed =self.text)
 
                     ),
                     MDTextField(
 
                         text=self.description,
-                       # on_disabled=(self.new_des =self.text)
+                        id='desc'
+                        # on_disabled=(self.new_des =self.text)
 
                     ),
                     MDTextField(
                         text=self.support_text,
-                        #on_disabled=lambda x (self.new_sup =self.text)
+                        # on_disabled=lambda x (self.new_sup =self.text)
                         # on_focus = AddTask.show_date_picker(self)
                     ),
                     spacing="15dp", orientation="vertical",
@@ -380,6 +384,7 @@ class ExpansionPanelItem(MDExpansionPanel):
                     MDButton(
                         MDButtonText(text="Отмена"),
                         style="text",
+
                         ripple_effect=False,
                         on_press=self.close_dialog
                     ),
@@ -393,11 +398,6 @@ class ExpansionPanelItem(MDExpansionPanel):
                 auto_dismiss=False,
             )
             self.dialog.open()
-
-    def rename(self, header, description, support):
-        self.header_text = header.text
-        self.description = description.text
-        self.support_text = support.text
 
     # автозаполнение всех полей от предыдущей задачи
     # если задача создается - старая удаляется, которое мы редактировали
