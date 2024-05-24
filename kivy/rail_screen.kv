@@ -19,6 +19,9 @@
                 on_release:
                     right_screen_manager.current = 'favorite_tasks'
                     root.show_favorite_tasks()
+                on_press:
+                    right_screen_manager.current = 'favorite_tasks'
+                    root.show_favorite_tasks()
 
             CommonNavigationRailItem:
                 icon: "bookmark"
@@ -36,6 +39,8 @@
                 icon: "account"
                 radius: (24)*4
                 text: "Аккаунт"
+                on_release:
+                    right_screen_manager.current = 'profile_screen'
 
 
             CommonNavigationRailItem:
@@ -44,6 +49,7 @@
                 theme_text_color: "Custom"
                 text_color: 'green'
                 on_release:
+                    root.show()
                     right_screen_manager.current = 'tasks'
 
         ScreenManager:

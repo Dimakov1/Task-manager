@@ -1,19 +1,71 @@
 <ProfileScreen>:
-    name: 'profile'
+    name: 'profile_screen'
+    username: username
     MDScreen:
         md_bg_color: app.theme_cls.backgroundColor
-        MDButton:
-            pos_hint: {"center_x": .5, "center_y": .5}
-            style: "filled"
-            theme_bg_color: "Custom"
-            md_bg_color: "green"
-            on_press:
-                root.manager.current = 'menu_screen'
+        MDBoxLayout:
+            orientation: 'vertical'
+            padding: '10dp'
+            spacing: '40'
+            size_hint: (.7, .6)
+            pos_hint: {'center_x': .5, 'center_y': .6}
 
-            MDButtonIcon:
-                icon: "account"
+            MDLabel:
+                text: "Учётная запись"
+                font_style: "Headline"
+                text_color: 'white'
+                halign: 'center'
 
-            MDButtonText:
-                text: "Account"
-                theme_text_color: "Custom"
-                text_color: "white"
+            FieldText:
+                readonly: True
+                text :'привет'
+                text_color: 'white'
+                color_up: 'white'
+                id: username
+                on_focus: root.unfocus()
+                allow_selection: False
+                allow_copy: True
+                icon: 'account'
+                MDTextFieldHelperText:
+                    text_color_normal: 'white'
+                    text_color_focus: 'white'
+                    text: 'Имя пользователя'
+                    mode: 'persistent'
+
+            FieldText:
+                readonly: True
+                text_color: 'white'
+                color_up: 'white'
+                icon: 'email'
+                MDTextFieldHelperText:
+                    text_color_normal: 'white'
+                    text_color_focus: 'white'
+                    text: 'Электронная почта'
+                    mode: 'persistent'
+
+            MDBoxLayout:
+                orientation: 'horizontal'
+                pos_hint:{'center_x': .4}
+                padding: '10dp'
+                spacing: '40'
+                MDButton:
+                    style: 'filled'
+                    theme_bg_color: "Custom"
+                    md_bg_color: "green"
+                    MDButtonText:
+                        text: "[b]ПРИВЯЗАТЬ ПОЧТУ[b]"
+
+                MDButton:
+                    style: 'filled'
+                    theme_bg_color: "Custom"
+                    md_bg_color: "orange"
+                    MDButtonText:
+                        text: "[b]ВЫЙТИ[b]"
+
+                MDButton:
+                    style: 'filled'
+                    theme_bg_color: "Custom"
+                    md_bg_color: "red"
+                    MDButtonText:
+                        text: "[b]УДАЛИТЬ ПРОФИЛЬ[b]"
+

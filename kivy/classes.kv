@@ -1,12 +1,12 @@
 <CommonNavigationRailItem>
-
-
+    padding: 5
+    radius: 100
+    always_release: True
 
     MDNavigationRailItemIcon:
         icon: root.icon
-
-    MDNavigationRailItemLabel:
-        text: root.text
+        theme_font_size: "Custom"
+        font_size : '20sp'
 
 <FieldText>:
     theme_text_color: "Custom"
@@ -113,6 +113,9 @@
 
 <Response>:
     size_hint_y: None
+    md_bg_color: app.theme_cls.backgroundColor
+
+    color_selection: 'blue'
     pos_hint: {"x": .02}
     height: self.texture_size[1]
     padding: 12, 10

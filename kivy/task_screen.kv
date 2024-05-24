@@ -8,13 +8,13 @@
             pos_hint: {"center_x": .5, "center_y": .5}
             MDList:
                 id: tasks
-        MDButton:
-            pos_hint: {"center_x": .5, "center_y": .1}
+        MDIconButton:
+            pos_hint: {"center_x": .9, "center_y": .1}
             style: "filled"
             theme_bg_color: "Custom"
             md_bg_color: "green"
+            icon: "plus-thick"
             on_release:
                 root.manager.current = 'add_task'
-            MDButtonIcon:
-                icon: "plus-thick"
+
 
