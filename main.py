@@ -367,11 +367,11 @@ class CommonNavigationRailItem(MDNavigationRailItem):
 
 
 class ProfileScreen(Screen):
-    def unfocus(self):
+    def unfocus1(self):
         self.username.focus = False
 
-
-
+    def unfocus2(self):
+        self.mail.focus = False
 
 class ExpansionPanelItem(MDExpansionPanel):
     header_text = StringProperty()

@@ -1,6 +1,7 @@
 <ProfileScreen>:
     name: 'profile_screen'
     username: username
+    mail: mail
     MDScreen:
         md_bg_color: app.theme_cls.backgroundColor
         MDBoxLayout:
@@ -22,9 +23,8 @@
                 text_color: 'white'
                 color_up: 'white'
                 id: username
-                on_focus: root.unfocus()
+                on_focus: root.unfocus1()
                 allow_selection: False
-                allow_copy: True
                 icon: 'account'
                 MDTextFieldHelperText:
                     text_color_normal: 'white'
@@ -34,6 +34,8 @@
 
             FieldText:
                 readonly: True
+                id: mail
+                on_focus: root.unfocus2()
                 text_color: 'white'
                 color_up: 'white'
                 icon: 'email'
