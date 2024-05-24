@@ -19,7 +19,7 @@
 
             FieldText:
                 readonly: True
-                text :'привет'
+                text : f'{root.func_show_login()}'
                 text_color: 'white'
                 color_up: 'white'
                 id: username
@@ -57,8 +57,7 @@
                     theme_bg_color: "Custom"
                     md_bg_color: "green"
                     MDButtonText:
-                        text: "[b]ПРИВЯЗАТЬ ПОЧТУ[b]"
-                    on_press: 
+                        text: "[b]ПРИВЯЗАТЬ ПОЧТУ[b]" 
 
                 MDButton:
                     style: 'filled'
@@ -79,13 +78,13 @@
             size_hint: (.7, None)
             pos_hint: {'center_x': .5, 'center_y': .2}
             MDLabel:
-                text: f'Количество завершённых задач: {1}'#Никита, нужно из бд в 81 и 87 строки выгружать инфу о тасках
+                text: f'Количество созданных задач: {root.show_add()}'#Никита, нужно из бд в 81 и 87 строки выгружать инфу о тасках
                 font_style: 'Label'
                 text_color: 'green'
                 halign: 'center'
 
             MDLabel:
-                text: f'Количество удалённых задач: {1}'
+                text: f'Количество удалённых задач: {root.show_delete()}'
                 font_style: 'Label'
                 text_color: 'red'
                 halign: 'center'
