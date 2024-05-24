@@ -151,6 +151,15 @@ class MenuScreen(Screen):
 
 
 class RailScreen(Screen):
+    old_nav = None
+    """def on_nav_item_press(self, instance_nav_item):
+        nav_rail = self.ids.nav_rail
+        screen_manager = self.ids.right_screen_manager
+        if instance_nav_item.active:
+            self.old_nav = instance_nav_item.id
+        if ((instance_nav_item.active) and (self.old_nav == instance_nav_item.id)):
+            instance_nav_item.on_active()
+            return"""
     def open_drop_item_menu(self, item):
         menu_items = [
             {
@@ -528,6 +537,7 @@ class DemoApp(MDApp):
         sm_one.add_widget(MenuScreen(name="tasks"))
 
         return sm_one
+
 
 
 if __name__ == "__main__":
