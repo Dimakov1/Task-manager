@@ -1,0 +1,77 @@
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+
+<RailScreen>:
+    name: 'rail_screen'
+    MDBoxLayout:
+        orientation: 'horizontal'
+
+        # Левая панель с навигацией
+        MDNavigationRail:
+            id: nav_rail
+            md_bg_color: app.theme_cls.backgroundColor
+            elevation: 1
+            type: "selected"
+
+            CommonNavigationRailItem:
+                icon: "alert-circle"
+                id: item_1
+                radius: (24)*4
+                text: "Важные"
+                on_press:
+                    right_screen_manager.current = 'favorite_tasks'
+                    root.show_favorite_tasks()
+
+            CommonNavigationRailItem:
+                icon: "bookmark"
+                id: item_2
+                ripple_effect: False
+                radius: (24)*4
+                text: "Активные"
+                on_press:
+                    right_screen_manager.current = 'profile_screen'
+
+            CommonNavigationRailItem:
+                icon: "robot"
+                id: item_3
+                ripple_effect: False
+                radius: (24)*4
+                text: 'gpt'
+                on_press: right_screen_manager.current = 'gpt_screen'
+
+            CommonNavigationRailItem:
+                icon: "account"
+                radius: (24)*4
+                id: item_4
+                text: "Аккаунт"
+                on_press:
+                    right_screen_manager.current = 'profile_screen'
+
+
+            CommonNavigationRailItem:
+                icon: "plus-box"
+                id: item_5
+                text: "Добавить задачу"
+                theme_text_color: "Custom"
+                text_color: 'green'
+                on_press:
+                    root.show()
+                    right_screen_manager.current = 'tasks'
+
+        ScreenManager:
+            id: right_screen_manager
+            transition: NoTransition()
+
+            TaskScreen:
+                name: 'tasks'
+
+            ProfileScreen:
+                name: 'profile_screen'
+
+            GPT:
+                name: 'gpt_screen'
+
+            AddTask:
+                name: 'add_task'
+
+            FavoriteTasks:
+                name: 'favorite_tasks'
