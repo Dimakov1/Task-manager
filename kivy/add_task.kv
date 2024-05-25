@@ -1,5 +1,7 @@
 <AddTask>:
     name: 'add_task'
+    new_task_name: new_task_name
+    new_task_description: new_task_description
     MDScreen:
         md_bg_color: app.theme_cls.backgroundColor
         BoxLayout:
@@ -25,36 +27,46 @@
             FieldText:
                 id: new_task_description
                 text_color: 'white'
+                color_up: 'white'
                 icon: 'pen'
                 hinter: 'Описание задачи'
-                color_up: 'white'
+                on_text_validate: root.lol()
+                new_task_name: ''
+                new_task_description: ''
                 MDTextFieldMaxLengthText:
                     max_text_length: 60
                     text_color_normal: 'white'
                     text_color_focus: 'white'
-            
             FieldText:
                 id: date_picker
                 readonly: True
                 text_color: 'white'
-                hint_text: 'Выберите дату'
+                color_up: 'white'
+                hinter: 'Выберите дату'
                 icon: 'calendar'
-                on_focus: root.show_date_picker(self.focus)
+                dater: 1
+                on_focus: root.show_date_picker()
                 MDTextFieldHelperText:
                     text_color_normal: 'white'
                     text_color_focus: 'white'
                     text: 'Укажите дедлайн'
                     mode: 'persistent'
 
+
             BoxLayout:
+                pos_hint: {'center_x': .5, 'center_y': .5}
                 orientation : 'horizontal'
+                spacing: "180"
 
                 MDButton:
                     style: "filled"
                     theme_bg_color: "Custom"
                     md_bg_color: "green"
                     size_hint_x: None
-                    on_press: root.manager.current = 'rail_screen'
+                    on_press:
+                        root.add_task()
+                        root.manager.current = "tasks"
+
                     MDButtonText:
                         text: '[b]ДОБАВИТЬ ЗАДАЧУ[/b]'
                     MDButtonIcon:
@@ -68,6 +80,7 @@
                     theme_bg_color: "Custom"
                     md_bg_color: "red"
                     size_hint_x: None
-                    on_press: root.manager.current = 'rail_screen'
+                    on_press: root.manager.current = 'tasks'
                     MDButtonText:
                         text: '[b]НАЗАД[/b]'
+

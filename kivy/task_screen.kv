@@ -6,6 +6,15 @@
             size_hint_x: .5
             md_bg_color: app.theme_cls.backgroundColor
             pos_hint: {"center_x": .5, "center_y": .5}
-
             MDList:
-                id: tasks_
+                id: tasks
+        MDIconButton:
+            pos_hint: {"center_x": .9, "center_y": .1}
+            style: "filled"
+            theme_bg_color: "Custom"
+            md_bg_color: "green"
+            icon: "plus-thick"
+            on_release:
+                root.manager.current = 'add_task'
+
+

@@ -1,51 +1,75 @@
-#: import NoTransition kivy.uix.screenmanager.NoTransition
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+
 <RailScreen>:
     name: 'rail_screen'
-    BoxLayout:
+    MDBoxLayout:
         orientation: 'horizontal'
 
-
+        # Левая панель с навигацией
         MDNavigationRail:
             md_bg_color: app.theme_cls.backgroundColor
             elevation: 1
             type: "unselected"
+            current_selected_item: 0
 
             CommonNavigationRailItem:
                 icon: "alert-circle"
                 radius: (24)*4
                 text: "Важные"
-                screen: 'menu_screen'
-
+                on_release:
+                    right_screen_manager.current = 'favorite_tasks'
+                    root.show_favorite_tasks()
+                on_press:
+                    right_screen_manager.current = 'favorite_tasks'
+                    root.show_favorite_tasks()
 
             CommonNavigationRailItem:
                 icon: "bookmark"
                 radius: (24)*4
                 text: "Активные"
-                screen: "profile"
+                on_release:
+                    right_screen_manager.current = 'profile_screen'
 
             CommonNavigationRailItem:
                 icon: "robot"
                 radius: (24)*4
-                screen: "gpt_screen"
+                on_release: right_screen_manager.current = 'gpt_screen'
 
             CommonNavigationRailItem:
                 icon: "account"
                 radius: (24)*4
                 text: "Аккаунт"
+                on_release:
+                    right_screen_manager.current = 'profile_screen'
+
 
             CommonNavigationRailItem:
                 icon: "plus-box"
                 text: "Добавить задачу"
                 theme_text_color: "Custom"
                 text_color: 'green'
-                on_press: root.manager.current = 'add_task'
+                on_release:
+                    root.show()
+                    right_screen_manager.current = 'tasks'
 
-
-        ScreensSecond:
-            id: "screens_second"
+        ScreenManager:
+            id: right_screen_manager
             transition: NoTransition()
+
             MenuScreen:
+                name: 'menu_screen'
+
             ProfileScreen:
+                name: 'profile_screen'
+
             TaskScreen:
+                name: 'tasks'
+
             GPT:
+                name: 'gpt_screen'
+
             AddTask:
+                name: 'add_task'
+
+            FavoriteTasks:
+                name: 'favorite_tasks'
