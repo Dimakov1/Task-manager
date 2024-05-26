@@ -31,8 +31,8 @@ class Database:
 
     def get_tasks(self, user_id):
         try:
-            complete_tasks = self.cursor.execute("SELECT id, name, description, due_date, important FROM tasks WHERE user_id = ? AND completed = 1", (user_id,)).fetchall()
-            incomplete_tasks = self.cursor.execute("SELECT id, name, description, due_date, important FROM tasks WHERE user_id = ? AND completed = 0", (user_id,)).fetchall()
+            complete_tasks = self.cursor.execute("SELECT id, name, description, due_date, important, completed FROM tasks WHERE user_id = ? AND completed = 1", (user_id,)).fetchall()
+            incomplete_tasks = self.cursor.execute("SELECT id, name, description, due_date, important, completed FROM tasks WHERE user_id = ? AND completed = 0", (user_id,)).fetchall()
             return incomplete_tasks, complete_tasks
         except sqlite3.Error as e:
             print(f"An error occurred: {e}")
@@ -40,7 +40,7 @@ class Database:
 
     def get_favorite_tasks(self, user_id):
         try:
-            favorite_tasks = self.cursor.execute("SELECT id, name, description, due_date, important FROM tasks WHERE user_id = ? AND important = 1", (user_id,)).fetchall()
+            favorite_tasks = self.cursor.execute("SELECT id, name, description, due_date, important, completed FROM tasks WHERE user_id = ? AND important = 1", (user_id,)).fetchall()
 
             return favorite_tasks
         except sqlite3.Error as e:
@@ -57,10 +57,28 @@ class Database:
             self.con.commit()
         except sqlite3.Error as e:
             print(f"An error occurred: {e}")
+    
+    def get_completed_tasks(self, user_id):
+        try:
+            favorite_tasks = self.cursor.execute("SELECT id, name, description, due_date, important, completed FROM tasks WHERE user_id = ? AND completed = 1", (user_id,)).fetchall()
 
 
-
-
+            return favorite_tasks
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e}")
+            return None, None
+            
+    def mark_task_as_complete(self, user_id, taskid):
+        try:
+            self.cursor.execute("UPDATE tasks SET completed = 1 WHERE id = ? AND user_id = ?", (taskid, user_id))
+            self.con.commit()
+            task_text = self.cursor.execute("SELECT name, description FROM tasks WHERE id = ? AND user_id = ?", (taskid, user_id)).fetchone()
+            return task_text
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e}")
+            return None
+    
+    
     def mark_task_as_incomplete(self, user_id, taskid):
         try:
             self.cursor.execute("UPDATE tasks SET completed = 0 WHERE id = ? AND user_id = ?", (taskid, user_id))

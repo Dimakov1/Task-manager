@@ -189,6 +189,11 @@ class RailScreen(Screen):
         self.ids.item_3.bind(on_touch_down=self.on_nav_item_touch)
         self.ids.item_4.bind(on_touch_down=self.on_nav_item_touch)
         self.ids.item_5.bind(on_touch_down=self.on_nav_item_touch)
+        self.ids.item_6.bind(on_touch_down=self.on_nav_item_touch)
+        self.ids.item_7.bind(on_touch_down=self.on_nav_item_touch)
+
+    def to_login(self):
+        self.manager.current = 'login'
 
 
     def change_screen(self, screen_name):
@@ -218,6 +223,14 @@ class RailScreen(Screen):
 
             elif instance.text == 'profile_screen' and current_screen != instance.text:
                 self.change_screen(instance.text)
+
+            elif instance.text == 'unknown':
+                instance.active = False
+                instance.active = True
+            
+            elif instance.text == 'login' and current_screen != instance.text:
+                self.to_login()
+                instance.active = True
 
 
             return True
@@ -375,6 +388,8 @@ class Login(Screen):  # включить функции по регистрац�
                 cursor.execute(f"SELECT user_id FROM users WHERE login = '{self.input_login.text}'").fetchone()[0])
             self.manager.current = 'rail_screen'
             RailScreen.show
+            self.input_login.text = ''
+            self.input_password.text = ''
 
 
     def count_add(self):
