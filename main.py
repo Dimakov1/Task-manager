@@ -29,6 +29,7 @@ from kivymd.uix.button import MDButton, MDButtonText, MDIconButton
 from kivymd.uix.widget import MDWidget
 from kivymd.uix.boxlayout import MDBoxLayout
 import pyperclip
+import bcrypt
 
 from kivymd.uix.widget import MDWidget
 from database import Database
@@ -149,7 +150,6 @@ class FavoriteTasks(Screen):
                 is_completed=bool(i[5])
 
             ))
-            print(f"Added favorite task: {str(i)}")
 
     def delete_from_favorite(self):
         pass
@@ -168,7 +168,6 @@ class CompletedTasks(Screen):
                 is_favorite=bool(i[4]),
                 is_completed=bool(i[4])
             ))
-            print(f"Added completed task: {str(i)}")
 
     def delete_from_completed(self):
         pass
@@ -265,7 +264,6 @@ class RailScreen(Screen):
                 is_favorite=bool(i[4]),
                 is_completed=bool(i[5])
             ))
-            print(i)
 
 
     def show_completed_tasks(self):
@@ -309,7 +307,6 @@ class RailScreen(Screen):
                 is_favorite=bool(i[4]),
                 is_completed=bool(i[5])
             ))
-            print(i)
 
 
 class CompletedTasks(Screen):
@@ -345,6 +342,9 @@ class Login(Screen):  # включить функции по регистрац�
     input_login = ObjectProperty()  # TextInput для логина
     input_password = ObjectProperty()  # TextInput для пароля
 
+    def check_password(password: str, hashed: str) -> bool:
+        return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+
     def login_user(self):  # Проверка данных и вход
         if cursor.execute(f"SELECT login FROM users WHERE login = '{self.input_login.text}'").fetchone() is None:
             MDSnackbar(
@@ -358,8 +358,8 @@ class Login(Screen):  # включить функции по регистрац�
                 size_hint_x=0.5,
                 radius=[(20)] * 4
             ).open()
-        elif cursor.execute(f"SELECT login, password FROM users WHERE login = '{self.input_login.text}'").fetchone()[
-            1] != self.input_password.text:
+        elif not (self.input_password.text, cursor.execute(f"SELECT login, password FROM users WHERE login = '{self.input_login.text}'").fetchone()[
+            1]):
             MDSnackbar(
                 MDSnackbarText(
                     text="Неверный пароль",
@@ -393,7 +393,6 @@ class Login(Screen):  # включить функции по регистрац�
 
 
     def count_add(self):
-        print(cursor.execute(f"SELECT add_c FROM users").fetchone())
         cursor.execute("UPDATE users SET add_c = add_c + 1 WHERE user_id = ?", (user_id,))
         database.commit()
 
@@ -417,9 +416,15 @@ class Register(Screen):
     login_t = ObjectProperty()  # TextInput для логина
     password_t = ObjectProperty()  # TextInput для пароля
     password_t2 = ObjectProperty()  # TextInput для второго пароля
-
+    
+    def hash_password(self, password: str) -> str:
+        # Генерация соли
+        salt = bcrypt.gensalt()
+        # Хеширование пароля
+        hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+        return hashed.decode('utf-8')
+    
     def register(self):  # проверка данных и запись в БД
-        print(self.login_t.text, self.password_t.text, self.password_t2.text)
         if len(self.login_t.text) <= 4:
             MDSnackbar(
                 MDSnackbarText(
@@ -475,7 +480,7 @@ class Register(Screen):
             else:
                 id = int(cursor.execute("SELECT MAX(user_id) FROM users").fetchone()[0])
             user_id = id + 1
-            cursor.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?)", (self.login_t.text, self.password_t.text, user_id, 0, 0))
+            cursor.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?)", (self.login_t.text, self.hash_password(self.password_t.text), user_id, 0, 0))
             database.commit()
             MDSnackbar(
                 MDSnackbarText(
@@ -563,7 +568,6 @@ class GPT(Screen):
         pyperclip.copy(self.answer.content)
 
     def add_from_gpt(self, instance):
-        print("ggg")
         self.manager.current = 'add_task'
         self.manager.get_screen('add_task').ids.new_task_description.text = self.answer.content
 
@@ -599,7 +603,6 @@ class ExpansionPanelItem(MDExpansionPanel):
 
 
     def show_description(self):
-        print(self.description)
 
         description_field = MDLabel(
             text=self.description,
@@ -624,7 +627,6 @@ class ExpansionPanelItem(MDExpansionPanel):
             AddTask.add_to_favorite_task(self.task_id)
         else:
             AddTask.delete_from_favorite_task(self.task_id)
-        print(self.task_id)
 
 
     def completed_task_active(self, checkbox, state):
@@ -632,7 +634,6 @@ class ExpansionPanelItem(MDExpansionPanel):
             AddTask.add_to_completed_task(self.task_id)
         else:
             AddTask.delete_from_completed_task(self.task_id)
-        print(self.task_id)
     def changer(self):
         if self.dialog == None:
             self.header_text_field = MDTextField(
@@ -675,7 +676,6 @@ class ExpansionPanelItem(MDExpansionPanel):
         self.dialog.open()
 
     def change_task(self, instance):
-        print(self.header_text_field.text, self.description_text_field.text, self.support_text_field.text)
         db.update_task_details(user_id, self.task_id, self.header_text_field.text, self.description_text_field.text, self.support_text_field.text)
 
         #Здесь надо подшаманить, чтобы обновлялся экран тасков
