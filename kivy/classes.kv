@@ -4,7 +4,7 @@
     MDNavigationRailItemIcon:
         icon: root.icon
         theme_font_size: "Custom"
-        font_size : '20sp'
+        font_size : '35sp'
 
 <FieldText>:
     theme_text_color: "Custom"
@@ -41,6 +41,13 @@
 
             MDListItemSupportingText:
                 text: root.header_text
+
+            MDCheckbox:
+                id: complete
+                checkbox_icon_normal: 'checkbox-blank-outline'
+                checkbox_icon_down: 'checkbox-marked'
+                on_state: root.completed_task_active(self, self.state)
+                pos_hint:{'center_x': 0, 'center_y': .45}
 
             MDIconButton:
                 icon: 'pencil'
@@ -79,6 +86,13 @@
                 checkbox_icon_down: 'heart'
                 on_state: root.favorite_task_active(self, self.state)
                 pos_hint:{'center_x': 0, 'center_y': .37}
+
+            MDIconButton:
+                icon: 'information'
+                ripple_effect: False
+                theme_icon_color: "Custom"
+                icon_color: "black"
+                on_press: root.show_description()
 
             MDIconButton:
                 icon: 'trash-can-outline'
