@@ -1,0 +1,63 @@
+<GPT>:
+    name: 'gpt_screen'
+    user_input: user
+
+    MDScreen:
+        MDFloatLayout:
+            md_bg_color: app.theme_cls.backgroundColor
+            MDFloatLayout:
+                size_hint_y: .11
+                pos_hint: {'center_y':.95}
+                MDLabel:
+                    id: 'gpt_label'
+                    text: 'GIGACHAT'
+                    halign: 'left'
+                    size_hint: None, None
+                    size: 200, 100
+                    padding: 20, 20
+                    pos_hint: {'top': 1}
+                    text_color: 'white'
+                    font_name: 'Poppins-SemiBolt.ttf'
+
+            ScrollView:
+                size_hint_y: .77
+                pos_hint:{'x': .0, 'y': .116}
+
+
+                BoxLayout:
+                    id: chat_list
+                    orientation: 'vertical'
+                    size: (root.width, root.height)
+
+                    height: self.minimum_height
+                    size_hint: None, None
+                    pso_hint: {'top': 10}
+                    cols: 1
+                    spacing: 7
+            MDFloatLayout:
+
+                size_hint_y: .11
+                pos_hint: {'center_y':.95}
+                MDFloatLayout:
+
+                    size_hint: .9, .7531
+                    padding: 15
+
+
+                    FieldText:
+                        id: user
+                        text_color: 'black'
+                        color_up: 'black'
+                        hinter: 'Задайте вопрос' #подумать еще как реализовать, чтоб текст пропадал, когда наводишься
+                        #не через hint текст надо делать
+                        max_height: "200dp"
+                        mode: "filled"
+                        on_text_validate: root.send()
+                        padding: 15
+
+
+                    MDIconButton:
+                        icon: 'send'
+                        pos_hint: {'center_x':.91, 'center_y':.5}
+                        user_font_size: '18sp'
+                        on_release: root.send()

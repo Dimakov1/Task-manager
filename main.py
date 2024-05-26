@@ -147,11 +147,13 @@ class FavoriteTasks(Screen):
                 task_id=f"{i[0]}",
                 is_favorite=bool(i[4]),
                 is_completed=bool(i[5])
+
             ))
             print(f"Added favorite task: {str(i)}")
 
     def delete_from_favorite(self):
         pass
+
 
 class CompletedTasks(Screen):
     def show(self):
@@ -170,9 +172,6 @@ class CompletedTasks(Screen):
 
     def delete_from_completed(self):
         pass
-
-
-
 
 class MenuScreen(Screen):
 
@@ -203,6 +202,7 @@ class RailScreen(Screen):
             if instance.text == 'favorite_tasks' and current_screen != instance.text:
                 self.show_favorite_tasks()
                 self.change_screen(instance.text)
+
 
             elif instance.text == 'completed_tasks' and current_screen != instance.text:
                 self.show_completed_tasks()
@@ -267,7 +267,7 @@ class RailScreen(Screen):
                 is_favorite=bool(i[4]),
                 is_completed=bool(i[5])
             ))
-
+          
     def show_favorite_tasks(self):
         favorite_tasks_screen = self.manager.get_screen('rail_screen').ids.right_screen_manager
         user_tasks = db.get_favorite_tasks(user_id)
@@ -510,6 +510,7 @@ class ExpansionPanelItem(MDExpansionPanel):
     is_favorite = BooleanProperty(False)
     is_completed  = BooleanProperty(False)
 
+
     def show_description(self):
         print(self.description)
 
@@ -530,6 +531,7 @@ class ExpansionPanelItem(MDExpansionPanel):
         self.ids.heart_checkbox.state = 'down' if self.is_favorite else 'normal'
         self.ids.complete.state = 'down' if self.is_completed else 'normal'
 
+
     def favorite_task_active(self, checkbox, state):
         if state == 'down':
             AddTask.add_to_favorite_task(self.task_id)
@@ -537,13 +539,13 @@ class ExpansionPanelItem(MDExpansionPanel):
             AddTask.delete_from_favorite_task(self.task_id)
         print(self.task_id)
 
+
     def completed_task_active(self, checkbox, state):
         if state == 'down':
             AddTask.add_to_completed_task(self.task_id)
         else:
             AddTask.delete_from_completed_task(self.task_id)
         print(self.task_id)
-
     def changer(self):
         if self.dialog == None:
             self.header_text_field = MDTextField(

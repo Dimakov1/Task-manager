@@ -1,0 +1,129 @@
+<CommonNavigationRailItem>
+    padding: 5
+
+    MDNavigationRailItemIcon:
+        icon: root.icon
+        theme_font_size: "Custom"
+        font_size : '20sp'
+
+<FieldText>:
+    theme_text_color: "Custom"
+    hint_txt : hint_txt
+    id:hint_txt
+    text_color_normal: root.text_color
+    text_color_focus: root.text_color
+    radius: [dp(19)]
+    on_text: root.check_text(root.md_bg_color, root.dater)
+
+    MDTextFieldTrailingIcon:
+        more_icon : root.more_icon
+
+    MDTextFieldLeadingIcon:
+        icon: root.icon
+        theme_icon_color: "Custom"
+        icon_color_normal: root.text_color
+        icon_color_focus: root.text_color
+
+    MDTextFieldHintText:
+        text: root.hinter
+
+        text_color_normal: root.color_up
+        text_color_focus: root.color_up
+
+<ExpansionPanelItem>:
+
+    MDExpansionPanelHeader:
+
+        MDListItem:
+            theme_bg_color: "Custom"
+            md_bg_color: '#819090'
+            ripple_effect: False
+
+            MDListItemSupportingText:
+                text: root.header_text
+
+            MDIconButton:
+                icon: 'information'
+                ripple_effect: False
+                theme_icon_color: "Custom"
+                icon_color: "black"
+                on_press: root.show_description()
+
+            MDIconButton:
+                icon: 'pencil'
+                ripple_effect: False
+                theme_icon_color: "Custom"
+                icon_color: "black"
+                on_press: root.changer()
+
+            TrailingPressedIconButton:
+                id: chevron
+                icon: "chevron-right"
+                on_release: root.tap_expansion_chevron(root, chevron)
+
+
+
+    MDExpansionPanelContent:
+        orientation: "vertical"
+        ripple_effect: False
+        padding: "12dp", 0, "12dp", "12dp"
+        md_bg_color: '#819090'
+
+        MDLabel:
+            adaptive_height: True
+            padding_x: "16dp"
+            padding_y: "12dp"
+
+        MDListItem:
+            theme_bg_color: "Custom"
+            md_bg_color: '#819090'
+            ripple_effect: False
+
+
+            MDCheckbox:
+                id: heart_checkbox
+                checkbox_icon_normal: 'heart-outline'
+                checkbox_icon_down: 'heart'
+                on_state: root.favorite_task_active(self, self.state)
+                pos_hint:{'center_x': 0, 'center_y': .37}
+
+            MDIconButton:
+                icon: 'trash-can-outline'
+                ripple_effect: False
+                on_press: root.for_delete()
+
+            MDListItemLeadingIcon:
+                icon: "calendar"
+
+            MDListItemHeadlineText:
+                text: root.description
+
+            MDListItemSupportingText:
+                text: root.support_text
+
+
+<Command>
+    size_hint_y: None
+    pos_hint: {"right": .98}
+    height: self.texture_size[1]
+    padding: 12, 10
+    theme_text_color: "Custom"
+    text_color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgb: (1, 170/255, 23/4, 1)
+        RoundedRectangle:
+            size: self.width, self.height
+            pos: self.pos
+            radius: [23, 23, 23, 23]
+
+<Response>:
+    size_hint_y: None
+    md_bg_color: app.theme_cls.backgroundColor
+
+    color_selection: 'blue'
+    pos_hint: {"x": .02}
+    height: self.texture_size[1]
+    padding: 12, 10
+    theme_text_color: "Custom"
+    text_color: 1, 1, 1, 1
