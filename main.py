@@ -30,6 +30,7 @@ from kivymd.uix.widget import MDWidget
 from kivymd.uix.boxlayout import MDBoxLayout
 import pyperclip
 
+from kivymd.uix.widget import MDWidget
 from database import Database
 
 db = Database()
@@ -153,6 +154,48 @@ class MenuScreen(Screen):
 
 
 class RailScreen(Screen):
+    text = StringProperty()
+    old_instance_active = None
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.ids.item_1.bind(on_touch_down=self.on_nav_item_touch)
+        self.ids.item_2.bind(on_touch_down=self.on_nav_item_touch)
+        self.ids.item_3.bind(on_touch_down=self.on_nav_item_touch)
+        self.ids.item_4.bind(on_touch_down=self.on_nav_item_touch)
+        self.ids.item_5.bind(on_touch_down=self.on_nav_item_touch)
+
+    def change_screen(self, screen_name):
+        self.ids.right_screen_manager.current = screen_name
+
+    def on_nav_item_touch(self, instance, touch):
+        if (instance.collide_point(*touch.pos)):
+            instance.on_touch_down(touch)
+            current_screen = self.ids.right_screen_manager.current
+            instance.active = True
+            instance.active = False
+            if instance.text == 'favorite_tasks' and current_screen != instance.text:
+                self.show_favorite_tasks()
+                self.change_screen(instance.text)
+
+            elif instance.text == 'completeted_screen' and current_screen != instance.text:
+                self.change_screen(instance.text)
+
+            elif instance.text == 'gpt_screen' and current_screen != instance.text:
+                self.change_screen(instance.text)
+
+            elif instance.text == 'tasks' and current_screen != instance.text:
+                self.show()
+                self.change_screen(instance.text)
+
+            elif instance.text == 'profile_screen' and current_screen != instance.text:
+                self.change_screen(instance.text)
+
+
+            return True
+        return False
+
+
+
     def open_drop_item_menu(self, item):
         menu_items = [
             {
@@ -165,8 +208,6 @@ class RailScreen(Screen):
         )
         self.drop_item_menu.open()
 
-    def togpt(self):
-        pass
 
     def show(self):  # тут закидываем таски на экран TaskScreen
         task_screen = self.manager.get_screen('rail_screen').ids.right_screen_manager
@@ -210,6 +251,9 @@ class RailScreen(Screen):
             ))
             print(i)
 
+
+class CompletedTasks(Screen):
+    pass
 
 class Screens(ScreenManager):
     pass
@@ -424,14 +468,13 @@ class ExpansionPanelItem(MDExpansionPanel):
 
         description_field = MDLabel(
             text=self.description,
-            size=('20sp', '20sp')
         )
         self.desk = MDDialog(
             # -----------------------Headline text-------------------------
             MDDialogHeadlineText(
                 text="Описание задачи"), #Можно и добавить сюда название, как считаешь нужным
-            MDDialogContentContainer(
-                description_field, spacing="15dp", orientation="vertical" # сюда добавить надо описание
+            MDDialogSupportingText(
+                text=self.description # сюда добавить надо описание
             )
         )
         self.desk.open()
