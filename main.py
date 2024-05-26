@@ -164,6 +164,7 @@ class RailScreen(Screen):
         self.ids.item_4.bind(on_touch_down=self.on_nav_item_touch)
         self.ids.item_5.bind(on_touch_down=self.on_nav_item_touch)
 
+
     def change_screen(self, screen_name):
         self.ids.right_screen_manager.current = screen_name
 
@@ -287,10 +288,30 @@ class Login(Screen):  # включить функции по регистрац�
 
     def login_user(self):  # Проверка данных и вход
         if cursor.execute(f"SELECT login FROM users WHERE login = '{self.input_login.text}'").fetchone() is None:
-            print("Такого пользователя не существует")
+            MDSnackbar(
+                MDSnackbarText(
+                    text="Такого пользователя не существует",
+                    theme_text_color="Custom",
+                    text_color='white',
+                ),
+                background_color='#0e134f',
+                pos_hint={"center_x": 0.5},
+                size_hint_x=0.5,
+                radius=[(20)] * 4
+            ).open()
         elif cursor.execute(f"SELECT login, password FROM users WHERE login = '{self.input_login.text}'").fetchone()[
             1] != self.input_password.text:
-            print("Неверный пароль")
+            MDSnackbar(
+                MDSnackbarText(
+                    text="Неверный пароль",
+                    theme_text_color="Custom",
+                    text_color='white',
+                ),
+                background_color='#0e134f',
+                pos_hint={"center_x": 0.5},
+                size_hint_x=0.5,
+                radius=[(20)] * 4
+            ).open()
         else:
             MDSnackbar(
                 MDSnackbarText(
@@ -307,6 +328,8 @@ class Login(Screen):  # включить функции по регистрац�
             user_id = int(
                 cursor.execute(f"SELECT user_id FROM users WHERE login = '{self.input_login.text}'").fetchone()[0])
             self.manager.current = 'rail_screen'
+            RailScreen.show
+
 
     def count_add(self):
         print(cursor.execute(f"SELECT add_c FROM users").fetchone())
@@ -336,15 +359,54 @@ class Register(Screen):
 
     def register(self):  # проверка данных и запись в БД
         print(self.login_t.text, self.password_t.text, self.password_t2.text)
-        if len(self.login_t.text) <= 0:
-            print("Логин должен содержать более 4 символов")  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        elif len(self.password_t.text) <= 0:
-            print(
-                "Пароль должен содержать более 4 символов")  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if len(self.login_t.text) <= 4:
+            MDSnackbar(
+                MDSnackbarText(
+                    text="Логин должен содержать более 4 символов",
+                    theme_text_color="Custom",
+                    text_color='white',
+                ),
+                background_color='#0e134f',
+                pos_hint={"center_x": 0.5},
+                size_hint_x=0.5,
+                radius=[(20)] * 4
+            ).open()
+        elif len(self.password_t.text) <= 4:
+            MDSnackbar(
+                MDSnackbarText(
+                    text="Пароль должен содержать более 4 символов",
+                    theme_text_color="Custom",
+                    text_color='white',
+                ),
+                background_color='#0e134f',
+                pos_hint={"center_x": 0.5},
+                size_hint_x=0.5,
+                radius=[(20)] * 4
+            ).open()
         elif self.password_t.text != self.password_t2.text:
-            print("Пароли не совпадают")
+            MDSnackbar(
+                MDSnackbarText(
+                    text="Пароли не совпадают",
+                    theme_text_color="Custom",
+                    text_color='white',
+                ),
+                background_color='#0e134f',
+                pos_hint={"center_x": 0.5},
+                size_hint_x=0.5,
+                radius=[(20)] * 4
+            ).open()
         elif cursor.execute(f"SELECT login FROM users WHERE login = '{self.login_t.text}'").fetchone() is not None:
-            print("Такой пользователь уже существует")
+            MDSnackbar(
+                MDSnackbarText(
+                    text="Такой пользователь уже существует",
+                    theme_text_color="Custom",
+                    text_color='white',
+                ),
+                background_color='#0e134f',
+                pos_hint={"center_x": 0.5},
+                size_hint_x=0.5,
+                radius=[(20)] * 4
+            ).open()
         else:
             global user_id
             if cursor.execute('SELECT COUNT(*) FROM users').fetchone()[0] == 0:
@@ -354,7 +416,17 @@ class Register(Screen):
             user_id = id + 1
             cursor.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?)", (self.login_t.text, self.password_t.text, user_id, 0, 0))
             database.commit()
-            print("")
+            MDSnackbar(
+                MDSnackbarText(
+                    text="Вы успешно зарегистрировались",
+                    theme_text_color="Custom",
+                    text_color='white',
+                ),
+                background_color='#0e134f',
+                pos_hint={"center_x": 0.5},
+                size_hint_x=0.5,
+                radius=[(20)] * 4
+            ).open()
             # TextInput'ы очищаем и переходим на экран логина
             self.login_t.text, self.password_t.text, self.password_t2.text = '', '', ''
             self.manager.current = 'login'
@@ -419,7 +491,7 @@ class GPT(Screen):
                 self.ids.chat_list.add_widget(MDWidget())
 
                 self.ids.chat_list.add_widget(
-                    MDBoxLayout(MDIconButton(icon='pencil', theme_font_size = "Custom", font_size = sp(15), on_press = self.add_from_gpt), MDIconButton(icon='content-duplicate', on_press = self.copy_gpt), spacing=10,
+                    MDBoxLayout(MDIconButton(icon='pencil', on_press = self.add_from_gpt), MDIconButton(icon='content-duplicate', on_press = self.copy_gpt), spacing=10,
                                 orientation='horizontal', pos_hint={'center_x': .535}))  # доделать функции
         finally:
             self.ids.user.focus = True
