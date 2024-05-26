@@ -5,7 +5,7 @@ from kivymd.uix.screen import Screen
 from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
 from kivymd.uix.navigationrail import MDNavigationRailItem
-from kivymd.uix.textfield import MDTextField
+from kivymd.uix.textfield import MDTextField, MDTextFieldHintText
 import sqlite3
 from kivy.core.window import Window
 from kivymd.uix.expansionpanel import MDExpansionPanel
@@ -45,8 +45,16 @@ from kivymd.uix.dialog import (
     MDDialogContentContainer,
 )
 
-Window.size = (800, 670)
 
+
+fixed_width = 800
+fixed_height = 670
+Window.size = (fixed_width, fixed_height)
+
+def prevent_resize(instance, width, height):
+    Window.size = (fixed_width, fixed_height)
+
+Window.bind(on_resize=prevent_resize)
 
 class TaskScreen(Screen):  # Создаем класс TaskScreen, наследующийся от Screen
 
@@ -224,12 +232,20 @@ class RailScreen(Screen):
                 self.change_screen(instance.text)
 
             elif instance.text == 'unknown':
-                instance.active = False
-                instance.active = True
+                if current_screen == 'favorite_tasks':
+                    self.show_favorite_tasks()
+                    instance.active = True
+                elif current_screen == 'completed_tasks':
+                    self.show_completed_tasks()
+                    instance.active = True
+                elif current_screen == 'tasks':
+                    self.show()
+                    instance.active = True
             
             elif instance.text == 'login' and current_screen != instance.text:
                 self.to_login()
                 instance.active = True
+            
 
 
             return True
@@ -393,21 +409,40 @@ class Login(Screen):  # включить функции по регистрац�
 
 
     def count_add(self):
-        cursor.execute("UPDATE users SET add_c = add_c + 1 WHERE user_id = ?", (user_id,))
+        cursor.execute(
+            "UPDATE users SET add_c = add_c + 1 WHERE user_id = ?", (user_id,)
+        )
         database.commit()
 
     def count_delete(self):
-        cursor.execute("UPDATE users SET delete_c = delete_c + 1 WHERE user_id = ?", (user_id,))
+        cursor.execute(
+            "UPDATE users SET delete_c = delete_c + 1 WHERE user_id = ?", (user_id,)
+        )
         database.commit()
     
     def show_login(self):
-        return cursor.execute(f"SELECT login FROM users WHERE user_id = user_id").fetchone()[0]
-    
-    def show_del(self):
-        return cursor.execute(f"SELECT delete_c FROM users").fetchone()[0]
+        try:
+            return cursor.execute(
+                f"SELECT login FROM users ORDER BY user_id DESC"
+            ).fetchone()[0]
+        except:
+            return 1
     
     def show_ad(self):
-        return cursor.execute(f"SELECT add_c FROM users").fetchone()[0]
+        try:
+            return cursor.execute(
+                f"SELECT add_c FROM users ORDER BY user_id DESC"
+            ).fetchone()[0]
+        except:
+            return 1
+    
+    def show_del(self):
+        try:
+            return cursor.execute(
+                f"SELECT delete_c FROM users ORDER BY user_id DESC"
+            ).fetchone()[0]
+        except:
+            return 1
 
 
 
@@ -634,22 +669,24 @@ class ExpansionPanelItem(MDExpansionPanel):
             AddTask.add_to_completed_task(self.task_id)
         else:
             AddTask.delete_from_completed_task(self.task_id)
+
     def changer(self):
         if self.dialog == None:
             self.header_text_field = MDTextField(
+                MDTextFieldHintText(text='Введите название'),
                 text=self.header_text
             )
         self.description_text_field = MDTextField(
+            MDTextFieldHintText(text='Введите описание'),
             text=self.description,
             size=('20sp', '20sp')
         )
         self.support_text_field = MDTextField(
-            text=self.support_text,
-            # on_focus=AddTask.show_date_picker(self)
+            MDTextFieldHintText(text='Введите дедлайн формата ГГГГ-ММ-ДД'),
+            text=self.support_text
         )
 
         self.dialog = MDDialog(
-            # -----------------------Headline text-------------------------
             MDDialogHeadlineText(
                 text="Изменение задачи"),
             MDDialogContentContainer(
@@ -659,16 +696,22 @@ class ExpansionPanelItem(MDExpansionPanel):
                 spacing="15dp", orientation="vertical",
             ), MDDialogButtonContainer(
                 MDButton(
-                    MDButtonText(text="Отмена"),
+                    MDButtonText(text="Отмена", theme_text_color="Custom",
+                    text_color="white"),
                     style="text",
                     ripple_effect=False,
+                    theme_bg_color="Custom",
+                    md_bg_color="red",
                     on_press=self.close_dialog
                 ),
                 MDWidget(),
                 MDButton(
-                    MDButtonText(text="Подтвердить изменения"),
-                    ripple_effect=False,
+                    MDButtonText(text="Подтвердить изменения", theme_text_color="Custom",
+                    text_color="white"),
                     style="text",
+                    ripple_effect=False,
+                    theme_bg_color="Custom",
+                    md_bg_color="green",
                     on_press=self.change_task
                 )),
             auto_dismiss=False,

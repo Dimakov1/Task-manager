@@ -52,9 +52,7 @@
             CommonNavigationRailItem:
                 id: item_7
                 text: 'unknown'
-                MDWidget:
-                MDWidget:
-                MDWidget:
+                icon: 'reload'
 
 
 
@@ -67,6 +65,8 @@
         ScreenManager:
             id: right_screen_manager
             transition: NoTransition()
+            GPT:
+                name: 'gpt_screen'
 
             TaskScreen:
                 name: 'tasks'
@@ -77,8 +77,6 @@
             ProfileScreen:
                 name: 'profile_screen'
 
-            GPT:
-                name: 'gpt_screen'
 
 
             FavoriteTasks:
