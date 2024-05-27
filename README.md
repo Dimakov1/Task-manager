@@ -18,13 +18,10 @@
    ```
    pip install -r requirements.txt
    ```
-2. Перед использованием проверьте, находитесь ли в нужной папке:
-   ```
-   pip install -r requirements.txt
-   ```
    ```
    pip install https://github.com/kivymd/KivyMD/archive/master.zip
    ```
+2. Перед использованием проверьте, находитесь ли в нужной папке:
    ```
    python main.py
    ```
