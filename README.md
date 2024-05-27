@@ -19,7 +19,7 @@
    pip install -r requirements.txt
    ```
 2. Перед использованием проверьте, находитесь ли в нужной папке:
-
+   ```
    python main.py
    ```
 
