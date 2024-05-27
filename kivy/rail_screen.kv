@@ -7,64 +7,80 @@
 
         # Левая панель с навигацией
         MDNavigationRail:
+            id: nav_rail
             md_bg_color: app.theme_cls.backgroundColor
-            elevation: 1
-            type: "unselected"
+            type: 'labeled'
             current_selected_item: 0
 
             CommonNavigationRailItem:
                 icon: "alert-circle"
-                radius: (24)*4
-                text: "Важные"
-                on_release:
-                    right_screen_manager.current = 'favorite_tasks'
-                    root.show_favorite_tasks()
+                id: item_1
+                ripple_effect: False
+                theme_font_size: 'Custom'
+                font_size: '15sp'
+                text: 'favorite_tasks'
 
             CommonNavigationRailItem:
                 icon: "bookmark"
-                radius: (24)*4
-                text: "Активные"
-                on_release:
-                    right_screen_manager.current = 'profile_screen'
+                id: item_2
+                ripple_effect: False
+                text: "completed_tasks"
+
 
             CommonNavigationRailItem:
                 icon: "robot"
+                id: item_3
+                ripple_effect: False
                 radius: (24)*4
-                on_release: right_screen_manager.current = 'gpt_screen'
+                text: 'gpt_screen'
+
 
             CommonNavigationRailItem:
                 icon: "account"
-                radius: (24)*4
-                text: "Аккаунт"
+                id: item_4
+                text: 'profile_screen'
+
 
 
             CommonNavigationRailItem:
                 icon: "plus-box"
-                text: "Добавить задачу"
+                id: item_5
+                text: "tasks"
                 theme_text_color: "Custom"
                 text_color: 'green'
-                on_release:
-                    root.show_all_tasks()
-                    right_screen_manager.current = 'tasks'
+            
+            CommonNavigationRailItem:
+                id: item_7
+                text: 'unknown'
+                icon: 'reload'
+
+
+
+            CommonNavigationRailItem:
+                icon: "account-arrow-left"
+                id: item_6
+                text: "login"
+
 
         ScreenManager:
             id: right_screen_manager
             transition: NoTransition()
-
-            MenuScreen:
-                name: 'menu_screen'
-
-            ProfileScreen:
-                name: 'profile_screen'
+            GPT:
+                name: 'gpt_screen'
 
             TaskScreen:
                 name: 'tasks'
 
-            GPT:
-                name: 'gpt_screen'
-
             AddTask:
                 name: 'add_task'
 
+            ProfileScreen:
+                name: 'profile_screen'
+
+
+
             FavoriteTasks:
                 name: 'favorite_tasks'
+
+            CompletedTasks:
+                name: 'completed_tasks'

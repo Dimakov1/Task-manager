@@ -7,7 +7,7 @@
         md_bg_color: app.theme_cls.backgroundColor
         BoxLayout:
             size_hint: (.5, .5)
-            pos_hint: {'center_x': .5, 'center_y': .3}
+            pos_hint: {'center_x': .5, 'center_y': .5}
             padding: '10dp'
             orientation: 'vertical'
             md_bg_color: app.theme_cls.primaryColor
@@ -24,26 +24,44 @@
                 color_up: 'white'
                 icon: 'account'
                 hinter: 'Логин'
+
             FieldText:
                 id: password
                 text_color: 'white'
                 color_up: 'white'
                 icon: 'key'
                 hinter: 'Пароль'
+
             FieldText:
                 id: password2
                 text_color: 'white'
+                color_up: 'white'
                 icon: 'key'
-                hinter: 'Пароль'
-            MDButton:
-                on_press: root.register()
-                MDButtonText:
-                    text: 'Зарегистрироваться'
-            MDButton:
-                on_press:
-                    root.login_t.text = ""
-                    root.password_t.text = ""
-                    root.password_t2.text = ""
-                    root.manager.current = 'login'
-                MDButtonText:
-                    text: 'назад'
+                hinter: 'Подтверждение пароля'
+
+            BoxLayout:
+                orientation: 'horizontal'
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: "green"
+                    size_hint_x: None
+                    on_press: root.register()
+                    MDButtonText:
+                        text: '[b]ЗАРЕГИСТРИРОВАТЬСЯ[/b]'
+
+                Widget:
+                    size_hint_x: 1
+
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: "red"
+                    size_hint_x: None
+                    on_press:
+                        root.login_t.text = ""
+                        root.password_t.text = ""
+                        root.password_t2.text = ""
+                        root.manager.current = 'login'
+                    MDButtonText:
+                        text: '[b]НАЗАД[/b]'

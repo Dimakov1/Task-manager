@@ -2,19 +2,33 @@
     name: 'tasks'
     MDScreen:
         md_bg_color: app.theme_cls.backgroundColor
+        MDFloatLayout:
+            size_hint_y: .11
+            pos_hint: {'center_y':.95}
+            MDLabel:
+                text: 'Задачи'
+                theme_font_size: 'Custom'
+                font_size: '20sp'
+                halign: 'left'
+                size_hint: None, None
+                size: 200, 100
+                padding: 20, 20
+                pos_hint: {'top': 1}
+                text_color: 'white'
+                font_name: 'Poppins-SemiBolt.ttf'
         ScrollView:
-            size_hint_x: .5
+            size_hint_x: .7
             md_bg_color: app.theme_cls.backgroundColor
             pos_hint: {"center_x": .5, "center_y": .5}
             MDList:
                 id: tasks
-        MDButton:
-            pos_hint: {"center_x": .5, "center_y": .1}
+        MDIconButton:
+            pos_hint: {"center_x": .9, "center_y": .1}
             style: "filled"
             theme_bg_color: "Custom"
             md_bg_color: "green"
+            icon: "plus-thick"
             on_release:
                 root.manager.current = 'add_task'
-            MDButtonIcon:
-                icon: "plus-thick"
+
 

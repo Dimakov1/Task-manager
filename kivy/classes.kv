@@ -1,12 +1,10 @@
 <CommonNavigationRailItem>
-
-
+    padding: 5
 
     MDNavigationRailItemIcon:
         icon: root.icon
-
-    MDNavigationRailItemLabel:
-        text: root.text
+        theme_font_size: "Custom"
+        font_size : '35sp'
 
 <FieldText>:
     theme_text_color: "Custom"
@@ -32,8 +30,8 @@
         text_color_normal: root.color_up
         text_color_focus: root.color_up
 
-
 <ExpansionPanelItem>:
+
     MDExpansionPanelHeader:
 
         MDListItem:
@@ -43,6 +41,13 @@
 
             MDListItemSupportingText:
                 text: root.header_text
+
+            MDCheckbox:
+                id: complete
+                checkbox_icon_normal: 'checkbox-blank-outline'
+                checkbox_icon_down: 'checkbox-marked'
+                on_state: root.completed_task_active(self, self.state)
+                pos_hint:{'center_x': 0, 'center_y': .45}
 
             MDIconButton:
                 icon: 'pencil'
@@ -83,6 +88,13 @@
                 pos_hint:{'center_x': 0, 'center_y': .37}
 
             MDIconButton:
+                icon: 'information'
+                ripple_effect: False
+                theme_icon_color: "Custom"
+                icon_color: "black"
+                on_press: root.show_description()
+
+            MDIconButton:
                 icon: 'trash-can-outline'
                 ripple_effect: False
                 on_press: root.for_delete()
@@ -95,6 +107,7 @@
 
             MDListItemSupportingText:
                 text: root.support_text
+
 
 <Command>
     size_hint_y: None
@@ -113,6 +126,9 @@
 
 <Response>:
     size_hint_y: None
+    md_bg_color: app.theme_cls.backgroundColor
+
+    color_selection: 'blue'
     pos_hint: {"x": .02}
     height: self.texture_size[1]
     padding: 12, 10
