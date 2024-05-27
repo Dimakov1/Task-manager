@@ -20,6 +20,12 @@
    ```
 2. Перед использованием проверьте, находитесь ли в нужной папке:
    ```
+   pip install -r requirements.txt
+   ```
+   ```
+   pip install https://github.com/kivymd/KivyMD/archive/master.zip
+   ```
+   ```
    python main.py
    ```
 
