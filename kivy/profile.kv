@@ -63,6 +63,7 @@
                     style: 'filled'
                     theme_bg_color: "Custom"
                     md_bg_color: "orange"
+                    on_press: app.logout()
                     MDButtonText:
                         text: "[b]ВЫЙТИ[b]"
 
@@ -88,4 +89,10 @@
                 font_style: 'Label'
                 text_color: 'red'
                 halign: 'center'
+
+ScreenManager:
+    id: login_logout
+    Login:
+        name: 'login'
+
 

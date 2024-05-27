@@ -24,7 +24,7 @@
                 icon: "bookmark"
                 id: item_2
                 ripple_effect: False
-                text: "completed_screen"
+                text: "completed_tasks"
 
 
             CommonNavigationRailItem:
@@ -48,11 +48,25 @@
                 text: "tasks"
                 theme_text_color: "Custom"
                 text_color: 'green'
+            
+            CommonNavigationRailItem:
+                id: item_7
+                text: 'unknown'
+                icon: 'reload'
+
+
+
+            CommonNavigationRailItem:
+                icon: "account-arrow-left"
+                id: item_6
+                text: "login"
 
 
         ScreenManager:
             id: right_screen_manager
             transition: NoTransition()
+            GPT:
+                name: 'gpt_screen'
 
             TaskScreen:
                 name: 'tasks'
@@ -63,8 +77,6 @@
             ProfileScreen:
                 name: 'profile_screen'
 
-            GPT:
-                name: 'gpt_screen'
 
 
             FavoriteTasks:

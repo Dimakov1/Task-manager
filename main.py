@@ -5,7 +5,7 @@ from kivymd.uix.screen import Screen
 from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
 from kivymd.uix.navigationrail import MDNavigationRailItem
-from kivymd.uix.textfield import MDTextField
+from kivymd.uix.textfield import MDTextField, MDTextFieldHintText
 import sqlite3
 from kivy.core.window import Window
 from kivymd.uix.expansionpanel import MDExpansionPanel
@@ -29,6 +29,7 @@ from kivymd.uix.button import MDButton, MDButtonText, MDIconButton
 from kivymd.uix.widget import MDWidget
 from kivymd.uix.boxlayout import MDBoxLayout
 import pyperclip
+import bcrypt
 
 from kivymd.uix.widget import MDWidget
 from database import Database
@@ -44,8 +45,16 @@ from kivymd.uix.dialog import (
     MDDialogContentContainer,
 )
 
-Window.size = (800, 670)
 
+
+fixed_width = 800
+fixed_height = 670
+Window.size = (fixed_width, fixed_height)
+
+def prevent_resize(instance, width, height):
+    Window.size = (fixed_width, fixed_height)
+
+Window.bind(on_resize=prevent_resize)
 
 class TaskScreen(Screen):  # Создаем класс TaskScreen, наследующийся от Screen
 
@@ -94,6 +103,12 @@ class AddTask(Screen):
     def delete_from_favorite_task(task_id):
         db.mark_task_as_unimportant(user_id, task_id)
 
+    def add_to_completed_task(task_id):
+        db.mark_task_as_complete(user_id, task_id)
+
+    def delete_from_completed_task(task_id):
+        db.mark_task_as_incomplete(user_id, task_id)
+
     def show_date_picker(self):
         self.end = 0
         if self.date_dialog_open or self.end:
@@ -139,13 +154,31 @@ class FavoriteTasks(Screen):
                 description=f"{i[2]}",
                 support_text=f"{i[3]}",
                 task_id=f"{i[0]}",
-                is_favorite=bool(i[4])
+                is_favorite=bool(i[4]),
+                is_completed=bool(i[5])
+
             ))
-            print(f"Added favorite task: {str(i)}")
 
     def delete_from_favorite(self):
         pass
 
+
+class CompletedTasks(Screen):
+    def show(self):
+        user_tasks = db.get_completed_tasks(user_id)
+        self.manager.get_screen('completed_tasks').ids.ctasks.clear_widgets()
+        for i in user_tasks:
+            self.manager.get_screen('completed_tasks').ids.ctasks.add_widget(ExpansionPanelItem(
+                header_text=f"{i[1]}",
+                description=f"{i[2]}",
+                support_text=f"{i[3]}",
+                task_id=f"{i[0]}",
+                is_favorite=bool(i[4]),
+                is_completed=bool(i[4])
+            ))
+
+    def delete_from_completed(self):
+        pass
 
 class MenuScreen(Screen):
 
@@ -163,6 +196,11 @@ class RailScreen(Screen):
         self.ids.item_3.bind(on_touch_down=self.on_nav_item_touch)
         self.ids.item_4.bind(on_touch_down=self.on_nav_item_touch)
         self.ids.item_5.bind(on_touch_down=self.on_nav_item_touch)
+        self.ids.item_6.bind(on_touch_down=self.on_nav_item_touch)
+        self.ids.item_7.bind(on_touch_down=self.on_nav_item_touch)
+
+    def to_login(self):
+        self.manager.current = 'login'
 
 
     def change_screen(self, screen_name):
@@ -178,7 +216,9 @@ class RailScreen(Screen):
                 self.show_favorite_tasks()
                 self.change_screen(instance.text)
 
-            elif instance.text == 'completeted_screen' and current_screen != instance.text:
+
+            elif instance.text == 'completed_tasks' and current_screen != instance.text:
+                self.show_completed_tasks()
                 self.change_screen(instance.text)
 
             elif instance.text == 'gpt_screen' and current_screen != instance.text:
@@ -190,6 +230,22 @@ class RailScreen(Screen):
 
             elif instance.text == 'profile_screen' and current_screen != instance.text:
                 self.change_screen(instance.text)
+
+            elif instance.text == 'unknown':
+                if current_screen == 'favorite_tasks':
+                    self.show_favorite_tasks()
+                    instance.active = True
+                elif current_screen == 'completed_tasks':
+                    self.show_completed_tasks()
+                    instance.active = True
+                elif current_screen == 'tasks':
+                    self.show()
+                    instance.active = True
+            
+            elif instance.text == 'login' and current_screen != instance.text:
+                self.to_login()
+                instance.active = True
+            
 
 
             return True
@@ -221,10 +277,25 @@ class RailScreen(Screen):
                 description=f"{i[2]}",
                 support_text=f"{i[3]}",
                 task_id=f"{i[0]}",
-                is_favorite=bool(i[4])
+                is_favorite=bool(i[4]),
+                is_completed=bool(i[5])
             ))
-            print(i)
 
+
+    def show_completed_tasks(self):
+        completed_tasks_screen = self.manager.get_screen('rail_screen').ids.right_screen_manager
+        user_tasks = db.get_completed_tasks(user_id)
+        completed_tasks_screen.get_screen('completed_tasks').ids.ctasks.clear_widgets()
+        for i in user_tasks:
+            completed_tasks_screen.get_screen('completed_tasks').ids.ctasks.add_widget(ExpansionPanelItem(
+                header_text=f"{i[1]}",
+                description=f"{i[2]}",
+                support_text=f"{i[3]}",
+                task_id=f"{i[0]}",
+                is_favorite=bool(i[4]),
+                is_completed=bool(i[5])
+            ))
+          
     def show_favorite_tasks(self):
         favorite_tasks_screen = self.manager.get_screen('rail_screen').ids.right_screen_manager
         user_tasks = db.get_favorite_tasks(user_id)
@@ -235,7 +306,8 @@ class RailScreen(Screen):
                 description=f"{i[2]}",
                 support_text=f"{i[3]}",
                 task_id=f"{i[0]}",
-                is_favorite=bool(i[4])
+                is_favorite=bool(i[4]),
+                is_completed=bool(i[5])
             ))
 
     def show_all_tasks(self):  # тут закидываем таски на экран TaskScreen
@@ -248,9 +320,9 @@ class RailScreen(Screen):
                 description=f"{i[2]}",
                 support_text=f"{i[3]}",
                 task_id=f"{i[0]}",
-                is_favorite=bool(i[4])
+                is_favorite=bool(i[4]),
+                is_completed=bool(i[5])
             ))
-            print(i)
 
 
 class CompletedTasks(Screen):
@@ -286,6 +358,9 @@ class Login(Screen):  # включить функции по регистрац�
     input_login = ObjectProperty()  # TextInput для логина
     input_password = ObjectProperty()  # TextInput для пароля
 
+    def check_password(password: str, hashed: str) -> bool:
+        return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+
     def login_user(self):  # Проверка данных и вход
         if cursor.execute(f"SELECT login FROM users WHERE login = '{self.input_login.text}'").fetchone() is None:
             MDSnackbar(
@@ -299,8 +374,8 @@ class Login(Screen):  # включить функции по регистрац�
                 size_hint_x=0.5,
                 radius=[(20)] * 4
             ).open()
-        elif cursor.execute(f"SELECT login, password FROM users WHERE login = '{self.input_login.text}'").fetchone()[
-            1] != self.input_password.text:
+        elif not (self.input_password.text, cursor.execute(f"SELECT login, password FROM users WHERE login = '{self.input_login.text}'").fetchone()[
+            1]):
             MDSnackbar(
                 MDSnackbarText(
                     text="Неверный пароль",
@@ -329,25 +404,45 @@ class Login(Screen):  # включить функции по регистрац�
                 cursor.execute(f"SELECT user_id FROM users WHERE login = '{self.input_login.text}'").fetchone()[0])
             self.manager.current = 'rail_screen'
             RailScreen.show
+            self.input_login.text = ''
+            self.input_password.text = ''
 
 
     def count_add(self):
-        print(cursor.execute(f"SELECT add_c FROM users").fetchone())
-        cursor.execute("UPDATE users SET add_c = add_c + 1 WHERE user_id = ?", (user_id,))
+        cursor.execute(
+            "UPDATE users SET add_c = add_c + 1 WHERE user_id = ?", (user_id,)
+        )
         database.commit()
 
     def count_delete(self):
-        cursor.execute("UPDATE users SET delete_c = delete_c + 1 WHERE user_id = ?", (user_id,))
+        cursor.execute(
+            "UPDATE users SET delete_c = delete_c + 1 WHERE user_id = ?", (user_id,)
+        )
         database.commit()
     
     def show_login(self):
-        return cursor.execute(f"SELECT login FROM users WHERE user_id = user_id").fetchone()[0]
-    
-    def show_del(self):
-        return cursor.execute(f"SELECT delete_c FROM users").fetchone()[0]
+        try:
+            return cursor.execute(
+                f"SELECT login FROM users ORDER BY user_id DESC"
+            ).fetchone()[0]
+        except:
+            return 1
     
     def show_ad(self):
-        return cursor.execute(f"SELECT add_c FROM users").fetchone()[0]
+        try:
+            return cursor.execute(
+                f"SELECT add_c FROM users ORDER BY user_id DESC"
+            ).fetchone()[0]
+        except:
+            return 1
+    
+    def show_del(self):
+        try:
+            return cursor.execute(
+                f"SELECT delete_c FROM users ORDER BY user_id DESC"
+            ).fetchone()[0]
+        except:
+            return 1
 
 
 
@@ -356,9 +451,15 @@ class Register(Screen):
     login_t = ObjectProperty()  # TextInput для логина
     password_t = ObjectProperty()  # TextInput для пароля
     password_t2 = ObjectProperty()  # TextInput для второго пароля
-
+    
+    def hash_password(self, password: str) -> str:
+        # Генерация соли
+        salt = bcrypt.gensalt()
+        # Хеширование пароля
+        hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+        return hashed.decode('utf-8')
+    
     def register(self):  # проверка данных и запись в БД
-        print(self.login_t.text, self.password_t.text, self.password_t2.text)
         if len(self.login_t.text) <= 4:
             MDSnackbar(
                 MDSnackbarText(
@@ -414,7 +515,7 @@ class Register(Screen):
             else:
                 id = int(cursor.execute("SELECT MAX(user_id) FROM users").fetchone()[0])
             user_id = id + 1
-            cursor.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?)", (self.login_t.text, self.password_t.text, user_id, 0, 0))
+            cursor.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?)", (self.login_t.text, self.hash_password(self.password_t.text), user_id, 0, 0))
             database.commit()
             MDSnackbar(
                 MDSnackbarText(
@@ -502,7 +603,6 @@ class GPT(Screen):
         pyperclip.copy(self.answer.content)
 
     def add_from_gpt(self, instance):
-        print("ggg")
         self.manager.current = 'add_task'
         self.manager.get_screen('add_task').ids.new_task_description.text = self.answer.content
 
@@ -534,9 +634,10 @@ class ExpansionPanelItem(MDExpansionPanel):
     task_id = StringProperty()
     dialog = None  # Poka zaebal
     is_favorite = BooleanProperty(False)
+    is_completed  = BooleanProperty(False)
+
 
     def show_description(self):
-        print(self.description)
 
         description_field = MDLabel(
             text=self.description,
@@ -553,30 +654,39 @@ class ExpansionPanelItem(MDExpansionPanel):
 
     def on_kv_post(self, base_widget):
         self.ids.heart_checkbox.state = 'down' if self.is_favorite else 'normal'
+        self.ids.complete.state = 'down' if self.is_completed else 'normal'
+
 
     def favorite_task_active(self, checkbox, state):
         if state == 'down':
             AddTask.add_to_favorite_task(self.task_id)
         else:
             AddTask.delete_from_favorite_task(self.task_id)
-        print(self.task_id)
+
+
+    def completed_task_active(self, checkbox, state):
+        if state == 'down':
+            AddTask.add_to_completed_task(self.task_id)
+        else:
+            AddTask.delete_from_completed_task(self.task_id)
 
     def changer(self):
         if self.dialog == None:
             self.header_text_field = MDTextField(
+                MDTextFieldHintText(text='Введите название'),
                 text=self.header_text
             )
         self.description_text_field = MDTextField(
+            MDTextFieldHintText(text='Введите описание'),
             text=self.description,
             size=('20sp', '20sp')
         )
         self.support_text_field = MDTextField(
-            text=self.support_text,
-            # on_focus=AddTask.show_date_picker(self)
+            MDTextFieldHintText(text='Введите дедлайн формата ГГГГ-ММ-ДД'),
+            text=self.support_text
         )
 
         self.dialog = MDDialog(
-            # -----------------------Headline text-------------------------
             MDDialogHeadlineText(
                 text="Изменение задачи"),
             MDDialogContentContainer(
@@ -586,16 +696,22 @@ class ExpansionPanelItem(MDExpansionPanel):
                 spacing="15dp", orientation="vertical",
             ), MDDialogButtonContainer(
                 MDButton(
-                    MDButtonText(text="Отмена"),
+                    MDButtonText(text="Отмена", theme_text_color="Custom",
+                    text_color="white"),
                     style="text",
                     ripple_effect=False,
+                    theme_bg_color="Custom",
+                    md_bg_color="red",
                     on_press=self.close_dialog
                 ),
                 MDWidget(),
                 MDButton(
-                    MDButtonText(text="Подтвердить изменения"),
-                    ripple_effect=False,
+                    MDButtonText(text="Подтвердить изменения", theme_text_color="Custom",
+                    text_color="white"),
                     style="text",
+                    ripple_effect=False,
+                    theme_bg_color="Custom",
+                    md_bg_color="green",
                     on_press=self.change_task
                 )),
             auto_dismiss=False,
@@ -603,7 +719,6 @@ class ExpansionPanelItem(MDExpansionPanel):
         self.dialog.open()
 
     def change_task(self, instance):
-        print(self.header_text_field.text, self.description_text_field.text, self.support_text_field.text)
         db.update_task_details(user_id, self.task_id, self.header_text_field.text, self.description_text_field.text, self.support_text_field.text)
 
         #Здесь надо подшаманить, чтобы обновлялся экран тасков
@@ -686,7 +801,7 @@ class DemoApp(MDApp):
         Login.create_Bd()
         self.theme_cls.backgroundColor = '#0D1117'
         screens = ['classes.kv', 'login.kv', 'rail_screen.kv', 'register.kv', 'menu_screen.kv', 'profile.kv',
-                   'add_task.kv', 'task_screen.kv', 'gpt.kv', 'favorite_tasks.kv']
+                   'add_task.kv', 'task_screen.kv', 'gpt.kv', 'favorite_tasks.kv', 'completed_tasks.kv']
         for screen in screens:
             Builder.load_file(f'kivy/{screen}')
 

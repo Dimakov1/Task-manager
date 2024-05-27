@@ -2,8 +2,22 @@
     name: 'completed_tasks'
     MDScreen:
         md_bg_color: app.theme_cls.backgroundColor
+        MDFloatLayout:
+            size_hint_y: .11
+            pos_hint: {'center_y':.95}
+            MDLabel:
+                text: 'Выполненные\nзадачи'
+                theme_font_size: 'Custom'
+                font_size: '18sp'
+                halign: 'left'
+                size_hint: None, None
+                size: 200, 100
+                padding: 20, 20
+                pos_hint: {'top': 1}
+                text_color: 'white'
+                font_name: 'Poppins-SemiBolt.ttf'
         ScrollView:
-            size_hint_x: .5
+            size_hint_x: .6
             md_bg_color: app.theme_cls.backgroundColor
             pos_hint: {"center_x": .5, "center_y": .5}
             MDList:
