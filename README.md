@@ -35,3 +35,8 @@
 - **Снетков Никита**, [телеграм](https://t.me/s4pfir), бэкенд разработчик
 - **Махмутов Дэниз**, [телеграм](https://t.me/modestaq), тимлид, фронтэнд разработчик
 - **Севастьянов Иван**, [телеграм](https://t.me/cupydox), фронтэнд разработчик
+
+- ## Ссылки:
+- **Презентация проекта**, https://docs.google.com/presentation/d/1V2GQKWlTOwwKjAB9HPmMpGfgbUEE8QGQEiDAZX3FZrs/edit#slide=id.g111c3728c19_0_120
+- **Notion**, https://docs.google.com/presentation/d/1V2GQKWlTOwwKjAB9HPmMpGfgbUEE8QGQEiDAZX3FZrs/edit#slide=id.g111c3728c19_0_120
+- **Miro**, https://miro.com/app/board/uXjVKaT0SKo=/
